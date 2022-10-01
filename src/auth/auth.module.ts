@@ -18,13 +18,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
     PassportModule.register({ defaultStrategy: 'jwt' }), //! definimos la estrategia (jwt)
 
-    // JwtModule.register({
-    //   secret: process.env.JWT_SECRET,
-    //   signOptions:{
-    //     expiresIn: '2h'
-    //   }
-    // })  //! configuramos el jwt
-
     //? Configuracion asincrona para esperar a que termine todo y se mande
 
     JwtModule.registerAsync({

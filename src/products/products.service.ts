@@ -69,11 +69,11 @@ export class ProductsService {
     console.log(prod);
     if(prod == undefined){
       return {
-        ok: false
+        ok: true
       };
     }
     return {
-      ok: true
+      ok: false
     };
   }
 

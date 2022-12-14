@@ -7,14 +7,17 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EmployeeModule } from '../employee/employee.module';
+import { Employee } from '../employee/entities/employee.entity';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
   imports: [
     ConfigModule,
+    // EmployeeModule,
 
-    TypeOrmModule.forFeature([User]), //! Aca definimos las colecciones.
+    TypeOrmModule.forFeature([User,Employee]), //! Aca definimos las colecciones.
 
     PassportModule.register({ defaultStrategy: 'jwt' }), //! definimos la estrategia (jwt)
 
@@ -38,7 +41,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     TypeOrmModule,
     JwtStrategy,
     PassportModule,
-    JwtModule
+    JwtModule,
+    AuthService
   ]
 })
 export class AuthModule {}

@@ -13,17 +13,22 @@ import { LoginUserDto, CreateUserDto } from './dto';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 
+
 @Injectable()
 export class AuthService {
-
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
     //! (2) Esta es la injeccion:
     private readonly jwtServices: JwtService,
-  ) {} 
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
+    console.log('ingreso al metodo.')
+    console.log(createUserDto);
+
+
     try {
       const { password, ...userData } = createUserDto;
 
@@ -35,71 +40,69 @@ export class AuthService {
       delete user.password; //! Aca borramos las mierdas.
 
       return {
-        ...user, 
-        token: this.getJWToken({id: user.id})
+        ...user,
+        token: await this.getJWToken({ id: user.id }),
       };
     } catch (error) {
       this.handleDbErrors(error);
     }
+  }
+
+  async login({ phone, password }: LoginUserDto) {
+    const user = await this.userRepository.findOne({
+      where: { phone }, //! Esta es la condicion que queremos que busque
+      select: { email: true, password: true, id: true, fullName: true, company: true }, //! Esto es lo que configuramos para que retorne
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Credenciales no validas (email)');
+    }
+
+    if (!bcrypt.compareSync(password, user.password)) {
+      throw new UnauthorizedException('Credenciales no validas (password)');
+    }
+
+    console.log(`Se Loggeo con exito. ${user.fullName}`);
+
+    return {
+      // email: user.email,
+      fullName: user.fullName,
+      company: user.company,
+      token: await this.getJWToken({ id: user.id }),
+    };
   };
-
-  async login({ email, password }: LoginUserDto) {
-      const user = await this.userRepository.findOne({
-        where: { email }, //! Esta es la condicion que queremos que busque
-        select: { email: true, password: true, id: true }, //! Esto es lo que configuramos para que retorne
-      });
-
-      
-
-      if(!user){
-        throw new UnauthorizedException('Credenciales no validas (email)');
-      };
-
-      if( !bcrypt.compareSync(password, user.password) ){
-        throw new UnauthorizedException('Credenciales no validas (password)');
-      };
-
-
-      return {
-        email: user.email,
-        password: user.password, 
-        token: this.getJWToken({id: user.id})
-      };
-    
- 
-
-  };
-
 
   
-  private getJWToken(payload: JwtPayload){
-    //! Para generar el token requiero un servicio que ya esta instalado, 
+  async getJWToken(payload: JwtPayload) {
+
+    //! Para generar el token requiero un servicio que ya esta instalado,
     //! Para eso hacemos la injeeccion en el constructor paso ( (2) en la linea `23`)
     const token = this.jwtServices.sign(payload);
     return token;
-  };
+  }
 
-  async checkAuthStatus(user: User){
+  async checkAuthStatus(user: User) {
+    delete user.password;
 
-    delete user.password
+    console.log({
+      token: await this.getJWToken({id: user.id})
+    })
 
     return {
-      ...user, 
-      token: this.getJWToken({id: user.id})
+      ...user,
+      token: await this.getJWToken({ id: user.id }),
     };
-    
-  };
-  
+  }
+
   private handleDbErrors(error: any): never {
-      if (error.code === '23505') {
-        throw new BadRequestException(error.detail);
-      }
-  
-      console.log(error);
-  
-      throw new InternalServerErrorException(
-        'Porfavor revisar los logs del servidor.',
-      );
-  };
-  
+    if (error.code === '23505') {
+      throw new BadRequestException(error.detail);
+    }
+
+    console.log(error);
+
+    throw new InternalServerErrorException(
+      'Porfavor revisar los logs del servidor.',
+    );
+  }
 }

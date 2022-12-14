@@ -2,27 +2,28 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  UseGuards,
-  Req,
-  SetMetadata,
+  Body
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from './auth.service';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+
+import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { GetUser } from './decorators/get-user.decorator';
 import { User } from './entities/user.entity';
-import { Auth, RawHeaders } from './decorators';
-import { UserRoleGuard } from './guards/user-role.guard';
-import { RolProtected } from './decorators/rol-protected.decorator';
+import { Auth } from './decorators';
+
 import { ValidRoles } from './interface';
 
+@ApiTags('Autenticacion')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @ApiResponse({status: 201, description: 'Usuario creado con exito.', type: User })
+  @ApiResponse({status: 400, description: 'Bad Request.'})
+  @ApiResponse({status: 403, description: 'Token expirado.'})
   create(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
   }
@@ -31,6 +32,7 @@ export class AuthController {
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
   }
+
 
   @Get('check-status')
   @Auth()

@@ -8,8 +8,7 @@ import {
 
 export class LoginUserDto {
   @IsString()
-  @IsEmail()
-  email: string;
+  phone: string;
 
   @IsString()
   @MinLength(6)

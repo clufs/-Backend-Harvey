@@ -6,6 +6,7 @@ import { JwtPayload } from "../interface/jwt-payload.interface";
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Employee } from '../../employee/entities/employee.entity';
 
 
 @Injectable()
@@ -14,6 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy){
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
+
     configService: ConfigService
   ){
     super({
@@ -22,20 +27,27 @@ export class JwtStrategy extends PassportStrategy(Strategy){
     })
   }
 
-  async validate(payload: JwtPayload):Promise<User>{
+  async validate(payload: JwtPayload){
 
     const {id} = payload;
 
+    const owner = await this.userRepository.findOneBy({id});
+    const employee = await this.employeeRepository.findOneBy({id});
 
-    const user = await this.userRepository.findOneBy({id});
+    console.log(owner)
 
-    if(!user)         
-      throw new UnauthorizedException('Token No valido');
-
-    if(!user.isActive) 
-      throw new UnauthorizedException('Usuario no esta activo');
-
-    return user;
+    
+    if(!owner && !employee)         
+    throw new UnauthorizedException('Token No valido');
+    
+    
+    
+    if( owner ) {
+      if(!owner.isActive) throw new UnauthorizedException('Usuario no esta activo');
+      return owner
+    };
+    if( employee ) return employee;
+    
   };
 
 };

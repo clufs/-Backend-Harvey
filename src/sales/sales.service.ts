@@ -43,11 +43,11 @@ export class SalesService {
       delete order.seller;
 
       return order
-      
 
     } catch (error) {
       this.handleDbErrors(error);
     }
+    
   }
 
 

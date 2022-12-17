@@ -63,15 +63,16 @@ export class ProductsService {
   @Auth(ValidRoles.owner)
   async checkQrCode(body: any){
     const products = await this.productRepository.find();
-    const prod = await products.find(
+    const prod = products.find(
       (product) => product.code === body.qr
     )
-    console.log(prod);
     if(prod == undefined){
+      console.log('QR valido.');
       return {
         ok: true
       };
     }
+    console.log('QR Invalido')
     return {
       ok: false
     };
@@ -85,8 +86,8 @@ export class ProductsService {
       const productToShow = products.find(
         (prod) => prod.code === body.qrCode && prod.user.id === user.id 
       )
-        console.log(productToShow);
-      return productToShow == undefined ? {notFound: true} : productToShow;
+      console.log(productToShow);
+      return productToShow === undefined ? {notFound: true} : productToShow;
 
 
     } catch (error) {

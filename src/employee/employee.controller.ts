@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from '../auth/interface/valid-roles.interface';
 import { User } from '../auth/entities/user.entity';
@@ -25,6 +24,45 @@ export class EmployeeController {
     return this.employeeService.login(loginUserDto);
   } 
 
+  @Auth(ValidRoles.owner)
+  @Get()
+  getAllSellers(
+    @GetUser() owner: User
+  ){
+    return this.employeeService.getAllSellers(owner);
+  }
+
+  @Auth(ValidRoles.owner)
+  @Post('toggleActiveSeller')
+  toogleSellerStatus(
+    @GetUser() owner: User,
+    @Body() body: {sellerId: string},
+     ){
+      return this.employeeService.toggleStatusSeller(owner, body)
+     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   @Auth(ValidRoles.employee)
   @Get('products')
   getProducts(
@@ -32,6 +70,8 @@ export class EmployeeController {
   ){
     return this.employeeService.findAllProducts(employee);
   }
+
+  
 
   
 

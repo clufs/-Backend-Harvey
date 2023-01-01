@@ -21,10 +21,10 @@ export class Employee {
   })
   name: string;
 
-  @Column('text', {
-    unique: true,
-  })
-  socket: string;
+  // @Column('text', {
+  //   unique: true,
+  // })
+  // socket: string;
 
   @Column('bool', {
     default: true,
@@ -36,6 +36,18 @@ export class Employee {
     default: [ValidRoles.employee],
   })
   roles: string[];
+
+  @Column('text', {
+    unique: true,
+    default: ''
+  })
+  phone: string;
+
+  @Column('text',{
+    default: ''
+  })
+  password: string;
+
 
   @ManyToOne(() => User, (user) => user.product, {
     eager: true,

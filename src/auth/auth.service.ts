@@ -26,7 +26,6 @@ export class AuthService {
 
   async create(createUserDto: CreateUserDto) {
     console.log('ingreso al metodo.')
-    console.log(createUserDto);
 
 
     try {
@@ -62,7 +61,6 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales no validas (password)');
     }
 
-    console.log(`Se Loggeo con exito. ${user.fullName}`);
 
     return {
       // email: user.email,
@@ -84,9 +82,6 @@ export class AuthService {
   async checkAuthStatus(user: User) {
     delete user.password;
 
-    console.log({
-      token: await this.getJWToken({id: user.id})
-    })
 
     return {
       ...user,

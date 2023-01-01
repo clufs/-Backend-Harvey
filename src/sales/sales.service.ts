@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { CreateSaleDto } from './dto/create-sale.dto';
 import { Repository, DataSource } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../products/entities/product.entity';
-import { ProductsInCart } from './interface/productCart.interface';
 import { Employee } from '../employee/entities/employee.entity';
+import { ifError } from 'assert';
+import { CreateSaleDto } from './dto/create-sale.dto';
 
 
 @Injectable()
@@ -21,47 +21,50 @@ export class SalesService {
 
 
 
-  async create({ cart, ...rest }: CreateSaleDto, employee:Employee) {
+  async create({ cart, ...rest }: any, employee:Employee) { 
+    const finalCart = cart.map(item => JSON.parse(item));
+    const {totalPrice, totalProfit} = await this.calculate(finalCart);
 
-    const {totalPrice, totalProfit} = await this.calculate(cart);
+    
+
+    const date = this.formatDay(new Date());
+
+    // const newcart = JSON.stringify(cart);
 
     try {
-      
       const order = this.salesRepository.create({
-        cart,
+        cart: cart,
         totalPrice,
         totalProfit,
-        ...rest,
-        date: Date.now(),
+        payment_method:rest.payment_method,
+        date, 
         seller: employee
       });
 
       await this.salesRepository.save(order);
-
+      
       delete order.totalProfit,
       delete order.cart;
       delete order.seller;
+
 
       return order
 
     } catch (error) {
       this.handleDbErrors(error);
     }
-    
   }
 
 
-  private async calculate(cart: ProductsInCart[]){
-    
+  private async calculate(cart: any){
     let totalPrice: number = 0;
-    let totalProfit: number = 0;
     let totalPriceToBuy: number = 0;
 
     for( let i = 0; i < cart.length ; i++){
-      totalPrice += (await this.productRepository.findOneBy({id: cart[i].id})).priceToSell * cart[i].cant;
+      const price = (await this.productRepository.findOneBy({id: cart[i].id})).priceToSell * cart[i].cant;
+      totalPrice += price;
       totalPriceToBuy += (await this.productRepository.findOneBy({id: cart[i].id})).priceToBuy * cart[i].cant;
     }
-
 
     return {
       totalPrice,
@@ -70,6 +73,38 @@ export class SalesService {
     };
     
   }
+  //FIXME: esto tenemos que ver que onda con el tiempo de busqueda.Si conviene pasarse a graphql.
+  async getSalesEmpForDay(employee: Employee){
+    const today = this.formatDay(new Date())
+    const sales = await this.salesRepository.find();
+    const salesForEmp = sales.filter( sales => sales.date === today && sales.seller.id === employee.id );
+    const toSend =  salesForEmp.map(
+      (e) => {
+        return{
+          id: e.id,
+          payment_method: e.payment_method,
+          total: e.totalPrice
+        }
+      }
+    );
+
+    return toSend;
+  }
+
+  async getSale({id}: any,employee:Employee){
+    try {
+      const sale = await this.salesRepository.findOneBy({id: id});
+      if(sale.seller.id === employee.id) {
+        return {
+          cart: sale.cart,
+          total: sale.totalPrice
+        };
+      } 
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
+  };
+  
 
   private handleDbErrors(error: any): never {
     if (error.code === '23505') {
@@ -81,6 +116,17 @@ export class SalesService {
     throw new InternalServerErrorException(
       'Porfavor revisar los logs del servidor.',
     );
+  }
+
+  private formatDay(day: Date){
+    const yyyy = day.getFullYear();
+    let mm = day.getMonth() + 1;
+    let dd = day.getDate();
+    
+    if (dd < 10) dd = 0 + dd;
+    if (mm < 10) mm = 0 + mm;
+
+    return dd + '/' + mm + '/' + yyyy;
   }
 
 

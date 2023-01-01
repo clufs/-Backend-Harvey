@@ -1,4 +1,4 @@
-import { Controller, Post, Body} from '@nestjs/common';
+import { Controller, Post, Body, Get} from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
@@ -19,8 +19,26 @@ export class SalesController {
   create(
     @Body() createSaleDto: CreateSaleDto,
     @GetUser() employee: Employee,
-    ) {
+    ){
     return this.salesService.create(createSaleDto, employee);
   };
 
+
+  @Get('get-sales-of-day-employee')
+  @ApiResponse({status: 201, description: 'Ordenes obtenidas con exito.', type: SaleResponse })
+  @Auth()
+  getSaleTodayOfEmployee(
+    @GetUser() employee: Employee
+  ){
+    return this.salesService.getSalesEmpForDay(employee);
+  }
+
+  @Post('get-sale')
+  @Auth()
+  getOneSale(
+    @Body() body,
+    @GetUser() employee: Employee 
+  ){
+    return this.salesService.getSale(body, employee);
+  }
 }

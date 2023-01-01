@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
@@ -13,22 +13,24 @@ export class EmployeeController {
 
   @Post()
   @Auth(ValidRoles.owner)
-  create(
-    @GetUser() owner: User,
-    @Body() empoyee: CreateEmployeeDto) {
+  create(@GetUser() owner: User, @Body() empoyee: CreateEmployeeDto) {
     return this.employeeService.create(owner, empoyee);
   }
-  
+
   @Post('login')
-  login(@Body() loginUserDto: LoginEmployeeDto) {
+  login( @Body() loginUserDto: LoginEmployeeDto) {
     return this.employeeService.login(loginUserDto);
-  } 
+  }
+
+  @Auth(ValidRoles.owner)
+  @Post('get-seller')
+  getSeller(@GetUser() owner: User, @Body() body: { sellerId: string }) {
+    return this.employeeService.getSeller(owner, body);
+  }
 
   @Auth(ValidRoles.owner)
   @Get()
-  getAllSellers(
-    @GetUser() owner: User
-  ){
+  getAllSellers(@GetUser() owner: User) {
     return this.employeeService.getAllSellers(owner);
   }
 
@@ -36,44 +38,26 @@ export class EmployeeController {
   @Post('toggleActiveSeller')
   toogleSellerStatus(
     @GetUser() owner: User,
-    @Body() body: {sellerId: string},
-     ){
-      return this.employeeService.toggleStatusSeller(owner, body)
-     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Body() body: { sellerId: string },
+  ) {
+    return this.employeeService.toggleStatusSeller(owner, body);
+  }
 
   @Auth(ValidRoles.employee)
   @Get('products')
-  getProducts(
-    @GetUser() employee: Employee
-  ){
+  getProducts(@GetUser() employee: Employee) {
     return this.employeeService.findAllProducts(employee);
   }
 
-  
+  @Auth(ValidRoles.employee)
+  @Post('get-product')
+  getProduct(@GetUser() employee: Employee, @Body() body:{ code: string}){
+    return this.employeeService.findProduct(employee, body);
+  }
 
-  
-
-  
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(@GetUser() emp: Employee) {
+    return this.employeeService.checkAuthStatus(emp);
+  }
 }

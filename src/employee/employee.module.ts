@@ -7,6 +7,8 @@ import { Employee } from './entities/employee.entity';
 import { ConfigModule } from '@nestjs/config';
 import { SalesModule } from '../sales/sales.module';
 import { ProductsModule } from '../products/products.module';
+import { EmployeLoginModule } from '../employe-login/employe-login.module';
+import { EmployeLoginGateway } from '../employe-login/employe-login.gateway';
 
 @Module({
   controllers: [EmployeeController],
@@ -16,7 +18,7 @@ import { ProductsModule } from '../products/products.module';
     TypeOrmModule.forFeature([Employee]),
     AuthModule,
     SalesModule,
-    ProductsModule
+    ProductsModule,
   ],
   exports: [
     TypeOrmModule,

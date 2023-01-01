@@ -33,9 +33,6 @@ export class JwtStrategy extends PassportStrategy(Strategy){
 
     const owner = await this.userRepository.findOneBy({id});
     const employee = await this.employeeRepository.findOneBy({id});
-
-    console.log(owner)
-
     
     if(!owner && !employee)         
     throw new UnauthorizedException('Token No valido');

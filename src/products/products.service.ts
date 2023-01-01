@@ -79,7 +79,7 @@ export class ProductsService {
   }
 
   @Auth(ValidRoles.owner)
-  async findOne(body : {qrCode: string}, user: User) {
+  async findOne(body : {qrCode: string}, user: User ) {
 
     try {
       const products = await this.productRepository.find();

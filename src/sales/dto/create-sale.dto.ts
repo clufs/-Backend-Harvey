@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsDate, IsNumber, IsOptional, IsPositive, IsString, MinLength } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 import { ProductsInCart } from '../interface/productCart.interface';
-
 
 export class CreateSaleDto {
 
@@ -12,15 +11,15 @@ export class CreateSaleDto {
   })
   @IsArray()
   cart: ProductsInCart[];
-
+ 
   
   @ApiProperty({
     description: 'Metodo de pago',
     nullable: false,
-
-    minLength: 1
+    minLength: 1,
   })
+
   @IsString()
-  payment_method: string;
+  payment_method: string;   
 
 }

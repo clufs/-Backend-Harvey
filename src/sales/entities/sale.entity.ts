@@ -36,7 +36,7 @@ export class Sale {
     array: true,
     default: [],
   })
-  cart: ProductsInCart[];
+  cart: string;
   
   @ApiProperty({
     example: '4000',
@@ -59,8 +59,8 @@ export class Sale {
     description: 'Fecha de la compra.',
     uniqueItems: true,
   })
-  @Column('numeric')
-  date: number;
+  @Column('text')
+  date: string;
 
   @ManyToOne(
     () => Employee,

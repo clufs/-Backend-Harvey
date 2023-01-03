@@ -6,6 +6,7 @@ import { Product } from '../products/entities/product.entity';
 import { Employee } from '../employee/entities/employee.entity';
 import { ifError } from 'assert';
 import { CreateSaleDto } from './dto/create-sale.dto';
+import { User } from '../auth/entities/user.entity';
 
 
 @Injectable()
@@ -91,6 +92,38 @@ export class SalesService {
     return toSend;
   }
 
+  //!ownew getAllSales
+  async getSalesForDay(owner: User){
+    const today = this.formatDay(new Date())
+    try {
+      const allSales = await this.salesRepository.find();
+      const sales = allSales.filter((sale) => sale.seller.owner.id === owner.id && sale.date === today);
+
+      let total = 0;
+      let totalProfits = 0; 
+      
+      sales.forEach( function(sale){
+        total = total + sale.totalPrice;
+        totalProfits = totalProfits + sale.totalProfit
+      })
+
+      return { 
+        sales,
+        total,
+        totalProfits,
+      }
+
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
+
+    
+
+
+    
+
+  }
+
   async getSale({id}: any,employee:Employee){
     try {
       const sale = await this.salesRepository.findOneBy({id: id});
@@ -128,6 +161,8 @@ export class SalesService {
 
     return dd + '/' + mm + '/' + yyyy;
   }
+
+
 
 
 }

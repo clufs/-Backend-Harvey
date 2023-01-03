@@ -92,7 +92,7 @@ export class SalesService {
     return toSend;
   }
 
-  //!ownew getAllSales
+  //!ownergetAllSales
   async getSalesForDay(owner: User){
     const today = this.formatDay(new Date())
     try {
@@ -101,6 +101,16 @@ export class SalesService {
 
       let total = 0;
       let totalProfits = 0; 
+
+      const salesToSend = sales.map(
+        function(sale) {
+          return{
+            id: sale.id,
+            total: sale.totalPrice,
+            profit: sale.totalProfit
+          }
+        }
+      )
       
       sales.forEach( function(sale){
         total = total + sale.totalPrice;
@@ -108,11 +118,11 @@ export class SalesService {
       })
 
       return { 
-        sales,
+        salesToSend,
         total,
         totalProfits,
       }
-      
+
 
     } catch (error) {
       this.handleDbErrors(error);

@@ -39,6 +39,7 @@ export class SalesController {
   getOneSale(
     @Body() body,
     @GetUser() employee: Employee 
+    
   ){
     return this.salesService.getSale(body, employee);
   }

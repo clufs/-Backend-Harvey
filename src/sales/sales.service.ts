@@ -106,16 +106,18 @@ export class SalesService {
         function(sale) {
           return{
             id: sale.id,
+            payment_method: sale.payment_method,
             total: sale.totalPrice,
             profit: sale.totalProfit
           }
         }
       )
       
-      sales.forEach( function(sale){
+      sales.forEach( function(sale) {
         total = total + sale.totalPrice;
         totalProfits = totalProfits + sale.totalProfit
-      })
+       }
+      )
 
       return { 
         salesToSend,
@@ -123,16 +125,9 @@ export class SalesService {
         totalProfits,
       }
 
-
     } catch (error) {
       this.handleDbErrors(error);
     }
-
-    
-
-
-    
-
   }
 
   async getSale({id}: any,employee:Employee){

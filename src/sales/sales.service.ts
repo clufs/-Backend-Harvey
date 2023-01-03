@@ -112,6 +112,7 @@ export class SalesService {
         total,
         totalProfits,
       }
+      
 
     } catch (error) {
       this.handleDbErrors(error);

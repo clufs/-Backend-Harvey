@@ -6,6 +6,7 @@ import { ProductsModule } from './products/products.module';
 import { EmployeeModule } from './employee/employee.module';
 import { SalesModule } from './sales/sales.module';
 import { EmployeLoginModule } from './employe-login/employe-login.module';
+import { VariantsModule } from './variants/variants.module';
 
 
 
@@ -33,6 +34,8 @@ import { EmployeLoginModule } from './employe-login/employe-login.module';
     SalesModule,
 
     EmployeLoginModule,
+
+    VariantsModule,
   ],
 })
 export class AppModule {

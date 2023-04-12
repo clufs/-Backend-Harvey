@@ -13,12 +13,36 @@ export class Product {
   id: string;
 
   @ApiProperty({
-    example: 'Remera Modal Adulto',
+    example: 'Ruta 40 Tigre',
     description: 'Nombre del producto',
     uniqueItems: true,
   })
   @Column('text', { unique: true })
   title: string;
+
+  @ApiProperty({
+    example: 'Remeras',
+    description: 'Categoria del producto',
+    uniqueItems: true,
+  })
+  @Column('text')
+  category: string;
+
+  @ApiProperty({
+    example: '1',
+    description: 'Nombre del producto',
+    uniqueItems: true,
+  })
+  @Column('text', { nullable: true })
+  size?: string;
+
+  @ApiProperty({
+    example: 'Negro',
+    description: 'Color',
+    uniqueItems: true,
+  })
+  @Column('text', { nullable: true })
+  color?: string;
 
   @ApiProperty({
     example: 2000,
@@ -36,7 +60,7 @@ export class Product {
   @Column('float', { default: 0 })
   priceToBuy: number;
 
-  @Column('float',{
+  @Column('float', {
     default: 0,
   })
   profit: number;
@@ -65,14 +89,8 @@ export class Product {
   @Column('text')
   code: string;
 
-
-  @ManyToOne(
-    () => User,
-    (user) => user.product,
-    {
-      eager: true
-    }
-  )
-  user: User
-
+  @ManyToOne(() => User, (user) => user.product, {
+    eager: true,
+  })
+  user: User;
 }

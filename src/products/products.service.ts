@@ -66,7 +66,7 @@ export class ProductsService {
 
       console.log(products);
 
-      const productToShow = products.find((prod) => prod.id === body.id);
+      const productToShow = products.find((prod) => prod.id == body.id);
 
       console.log(productToShow);
 

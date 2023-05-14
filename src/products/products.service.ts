@@ -62,9 +62,12 @@ export class ProductsService {
   async findOne(body: { id: string }, user: User) {
     try {
       const products = await this.productRepository.find();
+      console.log(body.id);
+
       const productToShow = products.find(
         (prod) => prod.id === body.id && prod.user.id === user.id,
       );
+
       console.log(productToShow);
 
       return productToShow === undefined ? { notFound: true } : productToShow;
@@ -76,25 +79,6 @@ export class ProductsService {
       id: body.id,
     };
   }
-  // @Auth(ValidRoles.owner)
-  // async findOne(body : {qrCode: string}, user: User ) {
-
-  //   try {
-  //     const products = await this.productRepository.find();
-  //     const productToShow = products.find(
-  //       (prod) => prod.code === body.qrCode && prod.user.id === user.id
-  //     )
-  //     console.log(productToShow);
-  //     return productToShow === undefined ? {notFound: true} : productToShow;
-
-  //   } catch (error) {
-  //     this.handleDBExceptions(error);
-  //   }
-
-  //   return {
-  //     qrCode: body.qrCode
-  //   }
-  // }
 
   @Auth(ValidRoles.owner)
   update(id: number, updateProductDto: UpdateProductDto) {

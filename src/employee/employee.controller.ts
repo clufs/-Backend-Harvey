@@ -18,7 +18,7 @@ export class EmployeeController {
   }
 
   @Post('login')
-  login( @Body() loginUserDto: LoginEmployeeDto) {
+  login(@Body() loginUserDto: LoginEmployeeDto) {
     return this.employeeService.login(loginUserDto);
   }
 
@@ -51,7 +51,7 @@ export class EmployeeController {
 
   @Auth(ValidRoles.employee)
   @Post('get-product')
-  getProduct(@GetUser() employee: Employee, @Body() body:{ code: string}){
+  getProduct(@GetUser() employee: Employee, @Body() body: { id: string }) {
     return this.employeeService.findProduct(employee, body);
   }
 

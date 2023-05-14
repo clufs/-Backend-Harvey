@@ -105,7 +105,7 @@ export class EmployeeService {
 
   async login({ password, phone }: LoginEmployeeDto) {
     const employe = await this.employeeRespository.findOne({
-      where: { phone , password},
+      where: { phone, password },
       select: {
         id: true,
         isActive: true,
@@ -113,17 +113,14 @@ export class EmployeeService {
       },
     });
 
-    if(!employe){
-      throw new UnauthorizedException('Crendenciales no validas.');      
+    if (!employe) {
+      throw new UnauthorizedException('Crendenciales no validas.');
     }
 
     return {
       fullname: employe.name,
-      token: await this.authService.getJWToken({id: employe.id})
-    }
-
-
-
+      token: await this.authService.getJWToken({ id: employe.id }),
+    };
 
     // return {
     //   token: await this.authService.getJWToken({ id: employee.id }),
@@ -154,11 +151,12 @@ export class EmployeeService {
   }
 
   @Auth(ValidRoles.employee)
-  async findProduct(employee: Employee, body: {code: string}){
-
+  async findProduct(employee: Employee, body: { id: string }) {
     try {
-      const products:Product[] = await this.productRepository.find();
-      const product = products.find((prod) => prod.user.id === employee.owner.id && prod.code === body.code);
+      const products: Product[] = await this.productRepository.find();
+      const product = products.find(
+        (prod) => prod.user.id === employee.owner.id && prod.id === body.id,
+      );
 
       const productToSend = {
         id: product.id,
@@ -166,8 +164,7 @@ export class EmployeeService {
         name: product.title,
       };
 
-      return product === undefined ? {notFound: true} : productToSend;
-
+      return product === undefined ? { notFound: true } : productToSend;
     } catch (error) {
       console.log('Algo salio mal revisar logs');
     }

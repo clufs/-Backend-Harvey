@@ -64,6 +64,8 @@ export class ProductsService {
       const products = await this.productRepository.find();
       console.log(body.id);
 
+      console.log(products);
+
       const productToShow = products.find(
         (prod) => prod.id === body.id && prod.user.id === user.id,
       );

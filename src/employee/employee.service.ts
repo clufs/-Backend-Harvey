@@ -154,9 +154,7 @@ export class EmployeeService {
   async findProduct(employee: Employee, body: { id: string }) {
     try {
       const products: Product[] = await this.productRepository.find();
-      const product = products.find(
-        (prod) => prod.user.id == employee.owner.id && prod.id == body.id,
-      );
+      const product = products.find((prod) => prod.id == body.id);
 
       const productToSend = {
         id: product.id,

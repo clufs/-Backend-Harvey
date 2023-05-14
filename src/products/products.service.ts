@@ -14,7 +14,6 @@ import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interface';
 import { Employee } from '../employee/entities/employee.entity';
 
-
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger('ProductsService');
@@ -41,7 +40,6 @@ export class ProductsService {
       return {
         product,
       };
-      
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -61,59 +59,42 @@ export class ProductsService {
   }
 
   @Auth(ValidRoles.owner)
-  async checkQrCode(body: any){
-    const products = await this.productRepository.find();
-    const prod = products.find(
-      (product) => product.code === body.qr
-    )
-    if(prod == undefined){
-      console.log('QR valido.');
-      return {
-        ok: true
-      };
-    }
-    console.log('QR Invalido')
-    return {
-      ok: false
-    };
-  }
-
-  @Auth(ValidRoles.owner)
-  async findOne(body : {qrCode: string}, user: User ) {
-
+  async findOne(body: { id: string }, user: User) {
     try {
       const products = await this.productRepository.find();
       const productToShow = products.find(
-        (prod) => prod.code === body.qrCode && prod.user.id === user.id 
-      )
+        (prod) => prod.id === body.id && prod.user.id === user.id,
+      );
       console.log(productToShow);
-      return productToShow === undefined ? {notFound: true} : productToShow;
 
-
+      return productToShow === undefined ? { notFound: true } : productToShow;
     } catch (error) {
       this.handleDBExceptions(error);
     }
 
     return {
-      qrCode: body.qrCode
-    }
+      id: body.id,
+    };
   }
-  
+  // @Auth(ValidRoles.owner)
+  // async findOne(body : {qrCode: string}, user: User ) {
 
+  //   try {
+  //     const products = await this.productRepository.find();
+  //     const productToShow = products.find(
+  //       (prod) => prod.code === body.qrCode && prod.user.id === user.id
+  //     )
+  //     console.log(productToShow);
+  //     return productToShow === undefined ? {notFound: true} : productToShow;
 
+  //   } catch (error) {
+  //     this.handleDBExceptions(error);
+  //   }
 
-
-
-
-
-
-
-
-
-
-
-
-
+  //   return {
+  //     qrCode: body.qrCode
+  //   }
+  // }
 
   @Auth(ValidRoles.owner)
   update(id: number, updateProductDto: UpdateProductDto) {

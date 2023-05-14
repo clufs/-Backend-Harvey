@@ -24,11 +24,11 @@ export class ProductsController {
     return this.productsService.create(createProductDto, user);
   }
 
-  @Post('checkqr')
-  @Auth(ValidRoles.owner)
-  checkQrCode(@Body() body, @GetUser() user: User) {
-    return this.productsService.checkQrCode(body);
-  }
+  // @Post('checkqr')
+  // @Auth(ValidRoles.owner)
+  // checkQrCode(@Body() body, @GetUser() user: User) {
+  //   return this.productsService.checkQrCode(body);
+  // }
 
   @Get()
   @Auth(ValidRoles.owner)

@@ -5,7 +5,6 @@ import {
   IsPositive,
   IsOptional,
   IsInt,
-  IsArray,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -14,15 +13,10 @@ export class CreateProductDto {
   title: string;
 
   @IsString()
-  category: string;
+  subCategory: string;
 
-  @IsOptional()
-  @IsNumber()
-  size?: string;
-
-  @IsOptional()
   @IsString()
-  color?: string;
+  category: string;
 
   @IsNumber()
   @IsPositive()
@@ -36,12 +30,4 @@ export class CreateProductDto {
   @IsPositive()
   @IsOptional()
   stock?: number;
-
-  @IsString({ each: true })
-  @IsArray()
-  @IsOptional()
-  tags: string[];
-
-  @IsString()
-  code: string;
 }

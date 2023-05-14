@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 
 @Entity('products')
@@ -9,7 +15,7 @@ export class Product {
     description: 'Id del Producto',
     uniqueItems: true,
   })
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('increment')
   id: string;
 
   @ApiProperty({
@@ -29,20 +35,11 @@ export class Product {
   category: string;
 
   @ApiProperty({
-    example: '1',
-    description: 'Nombre del producto',
-    uniqueItems: true,
+    example: 'Algodon Peinado Premium',
+    description: 'Sub-categoria del producto',
   })
-  @Column('text', { nullable: true })
-  size?: string;
-
-  @ApiProperty({
-    example: 'Negro',
-    description: 'Color',
-    uniqueItems: true,
-  })
-  @Column('text', { nullable: true })
-  color?: string;
+  @Column('text')
+  subCategory: string;
 
   @ApiProperty({
     example: 2000,
@@ -73,24 +70,21 @@ export class Product {
   @Column('float', { default: 0 })
   stock: number;
 
-  @ApiProperty({
-    example: '[Remeras Modal]',
-    description: 'Tags de el producto',
-    uniqueItems: true,
-  })
-  @Column('text', { array: true, default: [] })
-  tags: string[];
-
-  @ApiProperty({
-    example: 'Nostrud pariatur excepteur et enim nostrud.',
-    description: 'Codigo del producto para poder leerlo por QR.',
-    uniqueItems: true,
-  })
-  @Column('text')
-  code: string;
-
   @ManyToOne(() => User, (user) => user.product, {
     eager: true,
   })
   user: User;
+
+  // @Column('text')
+  // slug: string;
+
+  // @BeforeInsert()
+  // addSlug() {
+  //   this.slug = [this.category, this.subCategory, this.title]
+  //     .map((word) => {
+  //       const truncatedWord = word.substring(0, 2).toLowerCase();
+  //       return truncatedWord;
+  //     })
+  //     .join('_');
+  // }
 }

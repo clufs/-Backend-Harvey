@@ -6,16 +6,16 @@ import { ProductsModule } from './products/products.module';
 import { EmployeeModule } from './employee/employee.module';
 import { SalesModule } from './sales/sales.module';
 import { EmployeLoginModule } from './employe-login/employe-login.module';
-import { VariantsModule } from './variants/variants.module';
-
-
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      ssl: (process.env.STATE === 'prod') ? {rejectUnauthorized: false, sslmode: 'require'}: false as any,
+      ssl:
+        process.env.STATE === 'prod'
+          ? { rejectUnauthorized: false, sslmode: 'require' }
+          : (false as any),
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       database: process.env.DB_NAME,
@@ -34,17 +34,15 @@ import { VariantsModule } from './variants/variants.module';
     SalesModule,
 
     EmployeLoginModule,
-
-    VariantsModule,
   ],
 })
 export class AppModule {
-  constructor(){
-    console.log("STATE", process.env.STATE);
-    console.log("host", process.env.DB_HOST);
-    console.log("port", +process.env.DB_PORT);
-    console.log("database", process.env.DB_NAME);
-    console.log("username", process.env.DB_USERNAME);
-    console.log("password", process.env.DB_PASSWORD);
+  constructor() {
+    console.log('STATE', process.env.STATE);
+    console.log('host', process.env.DB_HOST);
+    console.log('port', +process.env.DB_PORT);
+    console.log('database', process.env.DB_NAME);
+    console.log('username', process.env.DB_USERNAME);
+    console.log('password', process.env.DB_PASSWORD);
   }
 }

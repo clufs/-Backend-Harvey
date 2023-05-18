@@ -3,7 +3,6 @@ import {
   BeforeUpdate,
   Column,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -33,7 +32,7 @@ export class User {
   })
   @Column('text', {
     unique: true,
-    default: null
+    default: null,
   })
   email: string;
 
@@ -122,8 +121,6 @@ export class User {
     (emp) => emp.owner,
   )
   employees: Employee;
-
-  
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {

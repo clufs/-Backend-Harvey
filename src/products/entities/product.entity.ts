@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 
 @Entity('products')
@@ -42,7 +36,7 @@ export class Product {
   subCategory: string;
 
   @ApiProperty({
-    example: 2000,
+    example: 4000,
     description: 'Precio del producto de venta',
     uniqueItems: true,
   })
@@ -65,7 +59,7 @@ export class Product {
   @ApiProperty({
     example: '14',
     description: 'Stock del producto actual',
-    uniqueItems: true,
+    nullable: true,
   })
   @Column('float', { default: 0 })
   stock: number;
@@ -74,17 +68,4 @@ export class Product {
     eager: true,
   })
   user: User;
-
-  // @Column('text')
-  // slug: string;
-
-  // @BeforeInsert()
-  // addSlug() {
-  //   this.slug = [this.category, this.subCategory, this.title]
-  //     .map((word) => {
-  //       const truncatedWord = word.substring(0, 2).toLowerCase();
-  //       return truncatedWord;
-  //     })
-  //     .join('_');
-  // }
 }

@@ -33,7 +33,7 @@ export class Product {
     description: 'Sub-categoria del producto',
   })
   @Column('text')
-  subCategory: string;
+  provider: string;
 
   @ApiProperty({
     example: 4000,

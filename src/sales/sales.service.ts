@@ -99,6 +99,10 @@ export class SalesService {
   async getSalesForDay(owner: User) {
     const today = this.formatDay(new Date());
     try {
+      const { totalMonth, totalMothProfits } = await this.getMonthlySales(
+        owner,
+      );
+
       const allSales = await this.salesRepository.find();
       const sales = allSales.filter(
         (sale) => sale.seller.owner.id === owner.id && sale.date === today,
@@ -125,17 +129,22 @@ export class SalesService {
         salesToSend,
         total,
         totalProfits,
+
+        totalMonth,
+        totalMothProfits,
       };
     } catch (error) {
       this.handleDbErrors(error);
     }
   }
 
-  async getMonthlySales(owner: User) {
+  async getMonthlySales(
+    owner: User,
+  ): Promise<{ totalMothProfits: number; totalMonth: number }> {
     const currtePeriod = this.formatPeriod(new Date());
 
-    let totalProfits = 0;
-    let total = 0;
+    let totalMothProfits = 0;
+    let totalMonth = 0;
     try {
       const allSales = await this.salesRepository.find();
       const sales = allSales.filter(
@@ -144,13 +153,13 @@ export class SalesService {
       );
 
       sales.forEach(function (sale) {
-        total = total + sale.totalPrice;
-        totalProfits = totalProfits + sale.totalProfit;
+        totalMonth = totalMonth + sale.totalPrice;
+        totalMothProfits = totalMothProfits + sale.totalProfit;
       });
 
       return {
-        total,
-        totalProfits,
+        totalMonth,
+        totalMothProfits,
       };
     } catch (error) {
       this.handleDbErrors(error);

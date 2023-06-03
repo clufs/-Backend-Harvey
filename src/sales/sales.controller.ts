@@ -34,6 +34,9 @@ export class SalesController {
     return this.salesService.getSalesEmpForDay(employee);
   }
 
+  
+
+
   @Post('get-sale')
   @Auth(ValidRoles.employee)
   getOneSale(
@@ -51,4 +54,10 @@ export class SalesController {
   ){
    return this.salesService.getSalesForDay(owner);
   }  
+
+  @Get('get-sales-of-month-owner')
+  @Auth(ValidRoles.owner)
+  getSalesOfMonth(@GetUser() owner: User){
+    return this.salesService.getMonthlySales(owner);
+  }
 }

@@ -1,17 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/products/entities/product.entity';
-import { BeforeInsert, Column, Entity, ManyToOne, PrimaryGeneratedColumn, Repository } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Repository,
+} from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { ProductsInCart } from '../interface/productCart.interface';
 
 @Entity('sales')
 export class Sale {
-
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-  ){}
+  ) {}
 
   @ApiProperty({
     example: '2275fe85-0610-4039-b324-c38bd61ee5a3',
@@ -37,10 +43,11 @@ export class Sale {
     default: [],
   })
   cart: string;
-  
+
   @ApiProperty({
     example: '4000',
-    description: 'Total ingresos. Osea el total sin con ganancias y precio de reposicion',
+    description:
+      'Total ingresos. Osea el total sin con ganancias y precio de reposicion',
     uniqueItems: true,
   })
   @Column('float')
@@ -57,20 +64,21 @@ export class Sale {
   @ApiProperty({
     example: '09/02/2022',
     description: 'Fecha de la compra.',
-    uniqueItems: true,
   })
   @Column('text')
   date: string;
 
-  @ManyToOne(
-    () => Employee,
-    (emp) => emp.sales,
-    {
-      eager: true
-    }
-    )
-  seller: Employee
+  @ApiProperty({
+    example: '02/2022',
+    description: 'Mes creacion de la orden',
+  })
+  @Column('text')
+  period: string;
 
+  @ManyToOne(() => Employee, (emp) => emp.sales, {
+    eager: true,
+  })
+  seller: Employee;
 
   @ApiProperty({
     example: 'transferencia',
@@ -79,10 +87,4 @@ export class Sale {
   })
   @Column('text')
   payment_method: string;
-
-
-
 }
-
-
-

@@ -27,8 +27,7 @@ export class SalesService {
     const { totalPrice, totalProfit } = await this.calculate(finalCart);
 
     const date = this.formatDay(new Date());
-
-    // const newcart = JSON.stringify(cart);
+    const period = this.formatPeriod(new Date());
 
     try {
       const order = this.salesRepository.create({
@@ -37,6 +36,7 @@ export class SalesService {
         totalProfit,
         payment_method: rest.payment_method,
         date,
+        period,
         seller: employee,
       });
 
@@ -131,6 +131,32 @@ export class SalesService {
     }
   }
 
+  async getMonthlySales(owner: User) {
+    const currtePeriod = this.formatPeriod(new Date());
+
+    let totalProfits = 0;
+    let total = 0;
+    try {
+      const allSales = await this.salesRepository.find();
+      const sales = allSales.filter(
+        (sale) =>
+          sale.seller.owner.id === owner.id && sale.period === currtePeriod,
+      );
+
+      sales.forEach(function (sale) {
+        total = total + sale.totalPrice;
+        totalProfits = totalProfits + sale.totalProfit;
+      });
+
+      return {
+        total,
+        totalProfits,
+      };
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
+  }
+
   async getSale({ id }: any, employee: Employee) {
     try {
       const sale = await this.salesRepository.findOneBy({ id: id });
@@ -166,5 +192,13 @@ export class SalesService {
     if (mm < 10) mm = 0 + mm;
 
     return dd + '/' + mm + '/' + yyyy;
+  }
+
+  private formatPeriod(day: Date): string {
+    const yyyy = day.getFullYear();
+    let mm = day.getMonth() + 1;
+    if (mm < 10) mm = 0 + mm;
+
+    return mm + '/' + yyyy;
   }
 }

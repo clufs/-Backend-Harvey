@@ -28,21 +28,6 @@ export class Product {
   @Column('text')
   category: string;
 
-  @Column('float')
-  offer1: number;
-  @Column('float')
-  unitsForOffer1: number;
-
-  @Column('float')
-  offer2: number;
-  @Column('float')
-  unitsForOffer2: number;
-
-  @Column('float')
-  offer3: number;
-  @Column('float')
-  unitsForOffer3: number;
-
   @ApiProperty({
     example: 'Algodon Peinado Premium',
     description: 'Sub-categoria del producto',

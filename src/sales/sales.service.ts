@@ -99,17 +99,16 @@ export class SalesService {
   async getSalesForDay(owner: User) {
     const today = this.formatDay(new Date());
     try {
-      const { totalMonth, totalMothProfits } = await this.getMonthlySales(
-        owner,
-      );
+      const { totalMonthIncome, totalMothProfits, totalIncome, totalProfits } =
+        await this.getSales(owner);
 
       const allSales = await this.salesRepository.find();
       const sales = allSales.filter(
         (sale) => sale.seller.owner.id === owner.id && sale.date === today,
       );
 
-      let total = 0;
-      let totalProfits = 0;
+      let todayTotalIncome = 0;
+      let todayTotalProfits = 0;
 
       const salesToSend = sales.map(function (sale) {
         return {
@@ -121,30 +120,40 @@ export class SalesService {
       });
 
       sales.forEach(function (sale) {
-        total = total + sale.totalPrice;
-        totalProfits = totalProfits + sale.totalProfit;
+        todayTotalIncome = todayTotalIncome + sale.totalPrice;
+        todayTotalProfits = todayTotalProfits + sale.totalProfit;
       });
 
       return {
         salesToSend,
-        total,
-        totalProfits,
 
-        totalMonth,
+        todayTotalIncome,
+        todayTotalProfits,
+
+        totalMonthIncome,
         totalMothProfits,
+
+        totalIncome,
+        totalProfits,
       };
     } catch (error) {
       this.handleDbErrors(error);
     }
   }
 
-  async getMonthlySales(
-    owner: User,
-  ): Promise<{ totalMothProfits: number; totalMonth: number }> {
+  async getSales(owner: User): Promise<{
+    totalMothProfits: number;
+    totalMonthIncome: number;
+    totalIncome: number;
+    totalProfits: number;
+  }> {
     const currtePeriod = this.formatPeriod(new Date());
 
     let totalMothProfits = 0;
-    let totalMonth = 0;
+    let totalMonthIncome = 0;
+    let totalIncome = 0;
+    let totalProfits = 0;
+
     try {
       const allSales = await this.salesRepository.find();
       const sales = allSales.filter(
@@ -152,14 +161,23 @@ export class SalesService {
           sale.seller.owner.id === owner.id && sale.period === currtePeriod,
       );
 
+      allSales.map((sale) => {
+        if (sale.seller.owner.id === owner.id) {
+          totalIncome += sale.totalPrice;
+          totalProfits += sale.totalProfit;
+        }
+      });
+
       sales.forEach(function (sale) {
-        totalMonth = totalMonth + sale.totalPrice;
+        totalMonthIncome = totalMonthIncome + sale.totalPrice;
         totalMothProfits = totalMothProfits + sale.totalProfit;
       });
 
       return {
-        totalMonth,
+        totalMonthIncome,
         totalMothProfits,
+        totalIncome,
+        totalProfits,
       };
     } catch (error) {
       this.handleDbErrors(error);

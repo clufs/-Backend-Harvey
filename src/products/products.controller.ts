@@ -5,6 +5,7 @@ import {
   Body,
   HttpStatus,
   HttpCode,
+  Patch,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -13,6 +14,7 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from 'src/auth/interface';
 import { Product } from './entities/product.entity';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @ApiTags('Productos')
 @Controller('products')
@@ -26,12 +28,6 @@ export class ProductsController {
     return this.productsService.create(createProductDto, user);
   }
 
-  // @Post('checkqr')
-  // @Auth(ValidRoles.owner)
-  // checkQrCode(@Body() body, @GetUser() user: User) {
-  //   return this.productsService.checkQrCode(body);
-  // }
-
   @Get()
   @Auth(ValidRoles.owner)
   getProducts(@GetUser() user: User) {
@@ -43,5 +39,14 @@ export class ProductsController {
   @HttpCode(HttpStatus.FOUND)
   getProduct(@Body() body, @GetUser() user: User) {
     return this.productsService.findOne(body, user);
+  }
+
+  @Patch()
+  @Auth(ValidRoles.owner)
+  updateProduct(
+    @Body() updateProductDto: UpdateProductDto,
+    @GetUser() user: User,
+  ) {
+    return this.productsService.update(updateProductDto, user);
   }
 }

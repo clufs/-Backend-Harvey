@@ -81,8 +81,32 @@ export class ProductsService {
   }
 
   @Auth(ValidRoles.owner)
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(updateProductDto: UpdateProductDto, user: User) {
+    try {
+      const products = await this.productRepository.find();
+      var productToUpdate = products.find(
+        (prod) => prod.id == updateProductDto.id,
+      );
+
+      if (productToUpdate.user.id == user.id) {
+        if (updateProductDto.priceToBuy)
+          productToUpdate.priceToBuy = updateProductDto.priceToBuy;
+
+        if (updateProductDto.priceToSell)
+          productToUpdate.priceToSell = updateProductDto.priceToSell;
+
+        productToUpdate.profit =
+          productToUpdate.priceToSell - productToUpdate.priceToBuy;
+        return this.productRepository.save(productToUpdate);
+      } else {
+        return {
+          msg: 'No tienes permiso para modificar esto.',
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      this.handleDBExceptions(error);
+    }
   }
 
   @Auth(ValidRoles.owner)

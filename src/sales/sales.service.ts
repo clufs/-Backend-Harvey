@@ -86,7 +86,9 @@ export class SalesService {
   }
   //FIXME: esto tenemos que ver que onda con el tiempo de busqueda.Si conviene pasarse a graphql.
   async getSalesEmpForDay(employee: Employee) {
-    const today = this.formatDay(new Date());
+    const today = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('DD/M/YYYY');
     const sales = await this.salesRepository.find();
     const salesForEmp = sales.filter(
       (sales) => sales.date === today && sales.seller.id === employee.id,

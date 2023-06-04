@@ -26,8 +26,15 @@ export class SalesService {
     const finalCart = cart.map((item) => JSON.parse(item));
     const { totalPrice, totalProfit } = await this.calculate(finalCart);
 
-    const date = this.formatDay(new Date());
-    const period = this.formatPeriod(new Date());
+    // const date = this.formatDay(new Date());
+    // const period = this.formatPeriod(new Date());
+    const date = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('DD/MM/YYYY');
+
+    const period = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('MM/YYYY');
 
     try {
       const order = this.salesRepository.create({
@@ -100,7 +107,10 @@ export class SalesService {
     const today = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('DD/MM/YYYY');
-    console.log('El dia de hoy es: ' + today);
+    const hour = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('HH:mm:ss');
+    console.log('El dia de hoy es: ' + today + hour);
 
     try {
       const { totalMonthIncome, totalMothProfits, totalIncome, totalProfits } =

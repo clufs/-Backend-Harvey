@@ -36,7 +36,5 @@ async function bootstrap() {
   await app.listen(PORT);
 
   console.log(`App corriendo en el puerto: ${PORT}.`);
-
-  moment.tz.setDefault('America/Argentina/Buenos_Aires');
 }
 bootstrap();

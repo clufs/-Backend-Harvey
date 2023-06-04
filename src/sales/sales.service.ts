@@ -97,8 +97,9 @@ export class SalesService {
 
   //!ownergetAllSales
   async getSalesForDay(owner: User) {
-    moment.tz.setDefault('America/Argentina/Buenos_Aires');
-    const today = moment().format('DD/MM/YYYY');
+    const today = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('DD/MM/YYYY');
     console.log('El dia de hoy es: ' + today);
 
     try {
@@ -150,9 +151,9 @@ export class SalesService {
     totalIncome: number;
     totalProfits: number;
   }> {
-    moment.tz.setDefault('America/Argentina/Buenos_Aires');
-    const currentPeriod = moment().format('MM/YYYY');
-    console.log('La zona horaria es: ' + moment.tz.guess());
+    const currentPeriod = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('MM/YYYY');
     console.log('El periodo actual es: ' + currentPeriod);
 
     let totalMothProfits = 0;

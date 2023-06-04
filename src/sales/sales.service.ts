@@ -30,11 +30,11 @@ export class SalesService {
     // const period = this.formatPeriod(new Date());
     const date = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('DD/MM/YYYY');
+      .format('DD/M/YYYY');
 
     const period = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('MM/YYYY');
+      .format('M/YYYY');
 
     try {
       const order = this.salesRepository.create({
@@ -106,7 +106,7 @@ export class SalesService {
   async getSalesForDay(owner: User) {
     const today = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('DD/MM/YYYY');
+      .format('DD/M/YYYY');
     const hour = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('HH:mm:ss');
@@ -163,7 +163,7 @@ export class SalesService {
   }> {
     const currentPeriod = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('MM/YYYY');
+      .format('M/YYYY');
     console.log('El periodo actual es: ' + currentPeriod);
 
     let totalMothProfits = 0;

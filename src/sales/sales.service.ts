@@ -3,14 +3,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../products/entities/product.entity';
 import { Employee } from '../employee/entities/employee.entity';
-import { ifError } from 'assert';
-import { CreateSaleDto } from './dto/create-sale.dto';
 import { User } from '../auth/entities/user.entity';
+
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class SalesService {
@@ -97,7 +97,9 @@ export class SalesService {
 
   //!ownergetAllSales
   async getSalesForDay(owner: User) {
-    const today = this.formatDay(new Date());
+    const today = moment().format('DD/MM/YYYY');
+    console.log('El dia de hoy es: ' + today);
+
     try {
       const { totalMonthIncome, totalMothProfits, totalIncome, totalProfits } =
         await this.getSales(owner);
@@ -147,7 +149,9 @@ export class SalesService {
     totalIncome: number;
     totalProfits: number;
   }> {
-    const currtePeriod = this.formatPeriod(new Date());
+    const currentPeriod = moment().format('MM/YYYY');
+    console.log('La zona horaria es: ' + moment.tz.guess());
+    console.log('El periodo actual es: ' + currentPeriod);
 
     let totalMothProfits = 0;
     let totalMonthIncome = 0;
@@ -158,7 +162,7 @@ export class SalesService {
       const allSales = await this.salesRepository.find();
       const sales = allSales.filter(
         (sale) =>
-          sale.seller.owner.id === owner.id && sale.period === currtePeriod,
+          sale.seller.owner.id === owner.id && sale.period === currentPeriod,
       );
 
       allSales.map((sale) => {

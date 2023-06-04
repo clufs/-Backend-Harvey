@@ -30,7 +30,7 @@ export class SalesService {
     // const period = this.formatPeriod(new Date());
     const date = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('DD/M/YYYY');
+      .format('D/M/YYYY');
 
     const period = moment()
       .tz('America/Argentina/Buenos_Aires')
@@ -88,7 +88,7 @@ export class SalesService {
   async getSalesEmpForDay(employee: Employee) {
     const today = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('DD/M/YYYY');
+      .format('D/M/YYYY');
     const sales = await this.salesRepository.find();
     const salesForEmp = sales.filter(
       (sales) => sales.date === today && sales.seller.id === employee.id,
@@ -108,7 +108,7 @@ export class SalesService {
   async getSalesForDay(owner: User) {
     const today = moment()
       .tz('America/Argentina/Buenos_Aires')
-      .format('DD/M/YYYY');
+      .format('D/M/YYYY');
     const hour = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('HH:mm:ss');

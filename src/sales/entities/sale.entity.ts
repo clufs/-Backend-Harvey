@@ -42,7 +42,7 @@ export class Sale {
     array: true,
     default: [],
   })
-  cart: string;
+  cart: string[];
 
   @ApiProperty({
     example: '4000',
@@ -86,5 +86,5 @@ export class Sale {
     uniqueItems: true,
   })
   @Column('text')
-  payment_method: string;
+  payment_method: 'efectivo' | 'deposito' | 'tarjeta';
 }

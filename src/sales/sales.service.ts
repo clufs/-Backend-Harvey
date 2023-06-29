@@ -11,6 +11,14 @@ import { Employee } from '../employee/entities/employee.entity';
 import { User } from '../auth/entities/user.entity';
 
 import * as moment from 'moment-timezone';
+import { json } from 'stream/consumers';
+import { catchError } from 'rxjs';
+
+interface TypeOfSale {
+  cardSale: number;
+  transfSale: number;
+  cashSale: number;
+}
 
 @Injectable()
 export class SalesService {
@@ -72,7 +80,7 @@ export class SalesService {
           .priceToBuy * cart[i].cant;
     }
 
-    const discount = 500; //cada 5000
+    const discount = 0; //es un descuento de 0 pesos;
 
     const priceWhitDiscount = Math.floor(totalPrice / 5000) * discount;
 
@@ -215,6 +223,107 @@ export class SalesService {
     } catch (error) {
       this.handleDbErrors(error);
     }
+  }
+
+  async getSummeryOfTheMonth(owner: User) {
+    const period = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('M/YYYY');
+
+    const sales = await this.salesRepository.find({
+      select: ['cart', 'totalPrice', 'totalProfit', 'payment_method'],
+      where: {
+        period: period,
+      },
+    });
+    let finalSales = [];
+
+    sales.map((sale) => {
+      delete sale.seller;
+      finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+    });
+
+    const cantidadRepetida: {
+      [name: string]: {
+        id: string;
+        name: string;
+        cant: number;
+        total: number;
+        profits?: number;
+      };
+    } = {};
+
+    finalSales.forEach((subcategory) => {
+      subcategory.forEach((producto) => {
+        if (producto.name in cantidadRepetida) {
+          (cantidadRepetida[producto.name].name = producto.name),
+            (cantidadRepetida[producto.name].id = producto.id),
+            (cantidadRepetida[producto.name].cant += producto.cant);
+          cantidadRepetida[producto.name].total +=
+            producto.cant * producto.price;
+        } else {
+          cantidadRepetida[producto.name] = {
+            name: producto.name,
+            id: producto.id,
+            cant: producto.cant,
+            total: producto.cant * producto.price,
+          };
+        }
+      });
+    });
+
+    // console.log(cantidadRepetida);
+
+    const obj = Object.entries(cantidadRepetida).map(
+      ([name, { id, cant, total, profits }]) => ({
+        name,
+        id,
+        cant,
+        total,
+        profits,
+      }),
+    );
+    //TODO: anaseh
+    let subtotla = 0;
+    obj.forEach((a) => {
+      subtotla += a.total;
+    });
+
+    console.log(subtotla);
+
+    const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
+    const { cardSale, cashSale, transfSale } = await this.calculateTypeSale(
+      sales,
+    );
+
+    return {
+      total: totalMonthIncome,
+      profits: totalMothProfits,
+      cardSale,
+      transfSale,
+      cashSale,
+
+      sales: obj,
+    };
+  }
+
+  private async calculateTypeSale(sales: Sale[]): Promise<TypeOfSale> {
+    let cardSale = 0;
+    let cashSale = 0;
+    let transfSale = 0;
+
+    sales.forEach((sale) => {
+      const totalPrice = +sale.totalPrice;
+      if (sale.payment_method == 'efectivo') cashSale += totalPrice;
+      if (sale.payment_method == 'tarjeta') cardSale += totalPrice;
+      if (sale.payment_method == 'deposito') transfSale += totalPrice;
+    });
+
+    return {
+      cardSale,
+      cashSale,
+      transfSale,
+    };
   }
 
   private handleDbErrors(error: any): never {

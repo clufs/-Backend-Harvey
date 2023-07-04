@@ -6,6 +6,7 @@ import {
   HttpStatus,
   HttpCode,
   Patch,
+  Res,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -15,6 +16,7 @@ import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from 'src/auth/interface';
 import { Product } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Response } from 'express';
 
 @ApiTags('Productos')
 @Controller('products')
@@ -48,5 +50,10 @@ export class ProductsController {
     @GetUser() user: User,
   ) {
     return this.productsService.update(updateProductDto, user);
+  }
+
+  @Get('pdf')
+  generatePdf(@Res() res: Response) {
+    return this.productsService.generatePDF(res);
   }
 }

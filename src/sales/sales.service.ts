@@ -11,8 +11,6 @@ import { Employee } from '../employee/entities/employee.entity';
 import { User } from '../auth/entities/user.entity';
 
 import * as moment from 'moment-timezone';
-import { json } from 'stream/consumers';
-import { catchError } from 'rxjs';
 
 interface TypeOfSale {
   cardSale: number;

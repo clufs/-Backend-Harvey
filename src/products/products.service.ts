@@ -122,8 +122,10 @@ export class ProductsService {
   }
 
   //PDF con datos de los productos.
-  // @Auth(ValidRoles.owner)
-  async generatePDF(res: Response) {
+  @Auth(ValidRoles.owner)
+  async generatePDF(res: Response, user: User) {
+    const products = await this.findAllProducts(user);
+
     const pdfDoc = new PDFDocument({
       size: 'A4',
       margin: 0,
@@ -132,7 +134,7 @@ export class ProductsService {
     pdfDoc.scale(1.0);
 
     const barcodeWidth = 60; // Ancho del código de barras
-    const barcodeHeight = 50; // Alto del código de barras
+    const barcodeHeight = 30; // Alto del código de barras
     const marginX = 20; // Margen horizontal
     const marginY = 20; // Margen vertical
     const gapX = 10; // Espacio horizontal entre códigos de barras
@@ -146,47 +148,113 @@ export class ProductsService {
       pdfDoc.page.height - pdfDoc.page.margins.top - pdfDoc.page.margins.bottom;
 
     const numColumns = Math.floor(pageWidth / (barcodeWidth + gapX));
-    const numRows = 13;
+    const numRows = 18;
 
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numColumns; col++) {
-        const barcodeValue = '24'; // Valor del código de barras
+    for (const product of products) {
+      pdfDoc.addPage();
+      const textHeight = pdfDoc.heightOfString(product.title, {
+        width: pageWidth,
+        align: 'center',
+      });
 
-        // Genera el código de barras SVG utilizando bwip-js
-        const svg = await bwipjs.toBuffer({
-          bcid: 'code128',
-          width: barcodeWidth,
-          scale: 3,
-          text: barcodeValue,
-          includetext: false,
-        });
+      const contentHeight = numRows * (barcodeHeight + gapY) + textHeight;
 
-        // Calcula la posición del código de barras en la página
-        const posX = marginX + col * (barcodeWidth + gapX);
-        const posY = marginY + row * (barcodeHeight + gapY);
+      const startPosY = marginY + (pageHeight - contentHeight) / 2;
 
-        const rectX = posX - padding;
-        const rectY = posY - padding;
-        const rectWidth = barcodeWidth + 2 * padding;
-        const rectHeight = barcodeHeight + 2 * padding;
+      const textX = marginX;
+      const textY = marginY + 20;
 
-        // Dibuja el código de barras SVG en el PDF
-        pdfDoc.image(svg, posX, posY, {
-          width: barcodeWidth,
-          height: barcodeHeight,
-        });
+      pdfDoc.fontSize(20).text(product.title, textX, textY, {
+        width: pageWidth,
+        align: 'center',
+        height: textHeight,
+        lineGap: 10,
+      });
 
-        pdfDoc.rect(rectX, rectY, rectWidth, rectHeight).stroke();
+      for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numColumns; col++) {
+          // Genera el código de barras SVG utilizando bwip-js
+          const svg = await bwipjs.toBuffer({
+            bcid: 'code128',
+            width: barcodeWidth,
+            scale: 3,
+            text: product.id.toString(),
+            includetext: false,
+          });
+
+          // Calcula la posición del código de barras en la página
+          const posX = marginX + col * (barcodeWidth + gapX);
+          const posY = startPosY + row * (barcodeHeight + gapY);
+
+          const rectX = posX - padding;
+          const rectY = posY - padding;
+          const rectWidth = barcodeWidth + 2 * padding;
+          const rectHeight = barcodeHeight + 2 * padding;
+
+          // Dibuja el código de barras SVG en el PDF
+          pdfDoc.image(svg, posX, posY, {
+            width: barcodeWidth,
+            height: barcodeHeight,
+          });
+
+          pdfDoc.rect(rectX, rectY, rectWidth, rectHeight).stroke();
+        }
       }
     }
-    const textAfterBarcodes = 'Remeras Modal Adulto';
+
+    // const textHeight = pdfDoc.heightOfString('remera adulto', {
+    //   width: pageWidth,
+    //   align: 'center',
+    // });
+
+    // const contentHeight = numRows * (barcodeHeight + gapY) + textHeight;
+
+    // const startPosY = marginY + (pageHeight - contentHeight) / 2;
+
+    // const textX = marginX;
+    // const textY = marginY + 20;
+
+    // pdfDoc.fontSize(20).text('remera adulto modal', textX, textY, {
+    //   width: pageWidth,
+    //   align: 'center',
+    //   height: textHeight,
+    //   lineGap: 10,
+    // });
+
+    // for (let row = 0; row < numRows; row++) {
+    //   for (let col = 0; col < numColumns; col++) {
+    //     // Genera el código de barras SVG utilizando bwip-js
+    //     const svg = await bwipjs.toBuffer({
+    //       bcid: 'code128',
+    //       width: barcodeWidth,
+    //       scale: 3,
+    //       text: '23',
+    //       includetext: false,
+    //     });
+
+    //     // Calcula la posición del código de barras en la página
+    //     const posX = marginX + col * (barcodeWidth + gapX);
+    //     const posY = startPosY + row * (barcodeHeight + gapY);
+
+    //     const rectX = posX - padding;
+    //     const rectY = posY - padding;
+    //     const rectWidth = barcodeWidth + 2 * padding;
+    //     const rectHeight = barcodeHeight + 2 * padding;
+
+    //     // Dibuja el código de barras SVG en el PDF
+    //     pdfDoc.image(svg, posX, posY, {
+    //       width: barcodeWidth,
+    //       height: barcodeHeight,
+    //     });
+
+    //     pdfDoc.rect(rectX, rectY, rectWidth, rectHeight).stroke();
+    //   }
+    // }
 
     // Agrega el texto después de los códigos de barras
-    pdfDoc.fontSize(15).text(textAfterBarcodes, marginX, pageHeight - marginY, {
-      align: 'center',
-    });
 
     // Establece las cabeceras de respuesta para indicar que es un archivo PDF
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',

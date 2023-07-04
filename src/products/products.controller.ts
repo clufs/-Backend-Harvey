@@ -17,6 +17,7 @@ import { ValidRoles } from 'src/auth/interface';
 import { Product } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Response } from 'express';
+import { userInfo } from 'os';
 
 @ApiTags('Productos')
 @Controller('products')
@@ -53,7 +54,8 @@ export class ProductsController {
   }
 
   @Get('pdf')
-  generatePdf(@Res() res: Response) {
-    return this.productsService.generatePDF(res);
+  @Auth(ValidRoles.owner)
+  generatePdf(@Res() res: Response, @GetUser() user: User) {
+    return this.productsService.generatePDF(res, user);
   }
 }

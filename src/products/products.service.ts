@@ -133,14 +133,14 @@ export class ProductsService {
 
     pdfDoc.scale(1.0);
 
-    const barcodeWidth = 100; // Ancho del código de barras
-    const barcodeHeight = 60; // Alto del código de barras
-    const marginX = 20; // Margen horizontal
-    const marginY = 20; // Margen vertical
-    const gapX = 10; // Espacio horizontal entre códigos de barras
-    const gapY = 10; // Espacio vertical entre códigos de barras
+    const barcodeWidth = 80; // Ancho del código de barras
+    const barcodeHeight = 30; // Alto del código de barras
+    const marginX = 30; // Margen horizontal
+    const marginY = 30; // Margen vertical
+    const gapX = 30; // Espacio horizontal entre códigos de barras
+    const gapY = 30; // Espacio vertical entre códigos de barras
 
-    const padding = 5; // Relleno alrededor de la caja de recorte
+    const padding = 15; // Relleno alrededor de la caja de recorte
 
     const pageWidth =
       pdfDoc.page.width - pdfDoc.page.margins.left - pdfDoc.page.margins.right;
@@ -148,7 +148,7 @@ export class ProductsService {
       pdfDoc.page.height - pdfDoc.page.margins.top - pdfDoc.page.margins.bottom;
 
     const numColumns = Math.floor(pageWidth / (barcodeWidth + gapX));
-    const numRows = 10;
+    const numRows = 12;
 
     for (const product of products) {
       pdfDoc.addPage();
@@ -212,7 +212,7 @@ export class ProductsService {
     // const startPosY = marginY + (pageHeight - contentHeight) / 2;
 
     // const textX = marginX;
-    // const textY = marginY + 20;
+    // const textY = marginY + 5;
 
     // pdfDoc.fontSize(20).text('remera adulto modal', textX, textY, {
     //   width: pageWidth,

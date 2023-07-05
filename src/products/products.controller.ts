@@ -17,7 +17,6 @@ import { ValidRoles } from 'src/auth/interface';
 import { Product } from './entities/product.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Response } from 'express';
-import { userInfo } from 'os';
 
 @ApiTags('Productos')
 @Controller('products')

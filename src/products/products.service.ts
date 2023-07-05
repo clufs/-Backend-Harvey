@@ -133,8 +133,8 @@ export class ProductsService {
 
     pdfDoc.scale(1.0);
 
-    const barcodeWidth = 60; // Ancho del código de barras
-    const barcodeHeight = 30; // Alto del código de barras
+    const barcodeWidth = 100; // Ancho del código de barras
+    const barcodeHeight = 60; // Alto del código de barras
     const marginX = 20; // Margen horizontal
     const marginY = 20; // Margen vertical
     const gapX = 10; // Espacio horizontal entre códigos de barras
@@ -148,7 +148,7 @@ export class ProductsService {
       pdfDoc.page.height - pdfDoc.page.margins.top - pdfDoc.page.margins.bottom;
 
     const numColumns = Math.floor(pageWidth / (barcodeWidth + gapX));
-    const numRows = 18;
+    const numRows = 10;
 
     for (const product of products) {
       pdfDoc.addPage();

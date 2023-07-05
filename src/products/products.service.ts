@@ -162,7 +162,7 @@ export class ProductsService {
       const startPosY = marginY + (pageHeight - contentHeight) / 2;
 
       const textX = marginX;
-      const textY = marginY + 20;
+      const textY = marginY + 5;
 
       pdfDoc.fontSize(20).text(product.title, textX, textY, {
         width: pageWidth,

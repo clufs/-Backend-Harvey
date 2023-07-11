@@ -7,6 +7,9 @@ import { EmployeeModule } from './employee/employee.module';
 import { SalesModule } from './sales/sales.module';
 import { EmployeLoginModule } from './employe-login/employe-login.module';
 
+import { Productsv2Module } from './v2_productsv2/productsv2.module';
+import { VariantsProductsv2Module } from './v2_variants/variants_productsv2.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -34,6 +37,10 @@ import { EmployeLoginModule } from './employe-login/employe-login.module';
     SalesModule,
 
     EmployeLoginModule,
+
+    Productsv2Module,
+
+    VariantsProductsv2Module,
   ],
 })
 export class AppModule {

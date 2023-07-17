@@ -145,11 +145,11 @@ export class EmployeeService {
         select: ['id', 'priceToSell', 'title'],
       });
 
-      const productsToShow = products.filter(
-        (product) => product.user.id == employee.owner.id,
-      );
+      // const productsToShow = products.filter(
+      //   (product) => product.user.id == employee.owner.id,
+      // );
 
-      return productsToShow;
+      return products;
     } catch (error) {
       this.handleDBExceptions(error);
     }

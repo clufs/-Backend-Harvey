@@ -19,12 +19,4 @@ export class CreateVariantsProductsv2Dto {
   @IsString()
   @MinLength(1)
   name: string;
-
-  @ApiProperty({
-    description: 'Stock del producto en cuestion',
-    nullable: false,
-  })
-  @IsNumber()
-  @IsPositive()
-  stock: number;
 }

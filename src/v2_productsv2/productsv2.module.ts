@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Productsv2 } from './entities/productsv2.entity';
 import { VariantsProductsv2 } from '../v2_variants/entities/variants_productsv2.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [Productsv2Controller],
   providers: [Productsv2Service],
   exports: [Productsv2Service, TypeOrmModule],
   imports: [
+    AuthModule,
     ConfigModule,
     TypeOrmModule.forFeature([Productsv2, VariantsProductsv2]),
     // VariantsProductsv2Module,

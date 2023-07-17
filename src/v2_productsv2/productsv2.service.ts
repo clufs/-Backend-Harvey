@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductsv2Dto } from './dto/create-productsv2.dto';
 import { UpdateProductsv2Dto } from './dto/update-productsv2.dto';
@@ -12,7 +16,21 @@ export class Productsv2Service {
     private readonly v2productRepository: Repository<Productsv2>,
   ) {}
 
-  create(createDto: CreateProductsv2Dto) {}
+  async create(createDto: CreateProductsv2Dto) {
+    try {
+      const product = this.v2productRepository.create(createDto);
+      product.profit = product.priceToSell - product.priceToBuy;
+
+      await this.v2productRepository.save(product);
+
+      return {
+        ok: true,
+        product,
+      };
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
+  }
 
   findAll() {
     return `This action returns all productsv2`;
@@ -28,5 +46,17 @@ export class Productsv2Service {
 
   remove(id: number) {
     return `This action removes a #${id} productsv2`;
+  }
+
+  private handleDbErrors(error: any): never {
+    if (error.code === '23505') {
+      throw new BadRequestException(error.detail);
+    }
+
+    console.log(error);
+
+    throw new InternalServerErrorException(
+      'Porfavor revisar los logs del servidor.',
+    );
   }
 }

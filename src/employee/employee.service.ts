@@ -140,10 +140,14 @@ export class EmployeeService {
   @Auth(ValidRoles.employee)
   async findAllProducts(employee: Employee) {
     try {
-      const products = await this.productRepository.find();
+      const products = await this.productRepository.find({
+        select: ['id', 'priceToSell', 'title', 'user'],
+      });
+
       const productsToShow = products.filter(
         (product) => product.user.id == employee.owner.id,
       );
+
       return productsToShow;
     } catch (error) {
       this.handleDBExceptions(error);

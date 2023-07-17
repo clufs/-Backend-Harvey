@@ -9,7 +9,7 @@ export class CreateProductsv2Dto {
   })
   @IsString()
   @MinLength(1)
-  title: string;
+  name: string;
 
   @ApiProperty({
     description: 'Categoria del producto',

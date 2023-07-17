@@ -1,7 +1,7 @@
 import { PrimaryGeneratedColumn, Entity, Column, OneToMany } from 'typeorm';
 import { VariantsProductsv2 } from '../../v2_variants/entities/variants_productsv2.entity';
 
-@Entity('products_v2')
+@Entity('v2_products')
 export class Productsv2 {
   @PrimaryGeneratedColumn('increment')
   id: string;

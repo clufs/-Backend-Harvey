@@ -141,7 +141,8 @@ export class EmployeeService {
   async findAllProducts(employee: Employee) {
     try {
       const products = await this.productRepository.find({
-        select: ['id', 'priceToSell', 'title', 'user'],
+        where: { user: { id: employee.owner.id } },
+        select: ['id', 'priceToSell', 'title'],
       });
 
       const productsToShow = products.filter(

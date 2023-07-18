@@ -145,10 +145,7 @@ export class EmployeeService {
         select: ['id', 'priceToSell', 'title'],
       });
 
-      // const productsToShow = products.filter(
-      //   (product) => product.user.id == employee.owner.id,
-      // );
-
+      console.log(products);
       return products;
     } catch (error) {
       this.handleDBExceptions(error);

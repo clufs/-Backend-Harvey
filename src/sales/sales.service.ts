@@ -92,6 +92,10 @@ export class SalesService {
   }
   //FIXME: esto tenemos que ver que onda con el tiempo de busqueda.Si conviene pasarse a graphql.
   async getSalesEmpForDay(employee: Employee) {
+    let totalCard = 0;
+    let totalTransf = 0;
+    let totalCash = 0;
+
     const today = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('D/M/YYYY');
@@ -99,6 +103,21 @@ export class SalesService {
     const salesForEmp = sales.filter(
       (sales) => sales.date === today && sales.seller.id === employee.id,
     );
+
+    salesForEmp.forEach((sale) => {
+      switch (sale.payment_method) {
+        case 'tarjeta':
+          totalCard += sale.totalPrice;
+          break;
+        case 'efectivo':
+          totalCash += sale.totalPrice;
+          break;
+        case 'deposito':
+          totalTransf += sale.totalPrice;
+          break;
+      }
+    });
+
     const toSend = salesForEmp.map((e) => {
       return {
         id: e.id,
@@ -107,7 +126,12 @@ export class SalesService {
       };
     });
 
-    return toSend;
+    return {
+      toSend,
+      totalCard,
+      totalCash,
+      totalTransf,
+    };
   }
 
   //!ownergetAllSales

@@ -126,12 +126,14 @@ export class SalesService {
       };
     });
 
-    return {
-      toSend,
-      totalCard,
-      totalCash,
-      totalTransf,
-    };
+    return toSend;
+
+    // return {
+    //   toSend,
+    //   totalCard,
+    //   totalCash,
+    //   totalTransf,
+    // };
   }
 
   //!ownergetAllSales

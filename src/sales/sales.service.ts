@@ -224,22 +224,9 @@ export class SalesService {
   }
 
   async getSummeryOfTheMonth(owner: User) {
-    const period = moment()
-      .tz('America/Argentina/Buenos_Aires')
-      .format('M/YYYY');
+    const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
 
-    const sales = await this.salesRepository.find({
-      select: ['cart', 'totalPrice', 'totalProfit', 'payment_method'],
-      where: {
-        period: period,
-      },
-    });
-    let finalSales = [];
-
-    sales.map((sale) => {
-      delete sale.seller;
-      finalSales.push(sale.cart.map((item) => JSON.parse(item)));
-    });
+    const { finalSales, sales } = await this._getSalesOfMonth();
 
     const cantidadRepetida: {
       [name: string]: {
@@ -270,8 +257,6 @@ export class SalesService {
       });
     });
 
-    // console.log(cantidadRepetida);
-
     const obj = Object.entries(cantidadRepetida).map(
       ([name, { id, cant, total, profits }]) => ({
         name,
@@ -289,8 +274,7 @@ export class SalesService {
 
     console.log(subtotla);
 
-    const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
-    const { cardSale, cashSale, transfSale } = await this.calculateTypeSale(
+    const { cardSale, cashSale, transfSale } = await this._calculateTypeSale(
       sales,
     );
 
@@ -305,7 +289,7 @@ export class SalesService {
     };
   }
 
-  private async calculateTypeSale(sales: Sale[]): Promise<TypeOfSale> {
+  private async _calculateTypeSale(sales: Sale[]): Promise<TypeOfSale> {
     let cardSale = 0;
     let cashSale = 0;
     let transfSale = 0;
@@ -322,6 +306,52 @@ export class SalesService {
       cashSale,
       transfSale,
     };
+  }
+
+  private async _getSalesOfMonth() {
+    const period = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('M/YYYY');
+
+    const sales = await this.salesRepository.find({
+      select: ['cart', 'totalPrice', 'totalProfit', 'payment_method', 'date'],
+      where: {
+        period: period,
+      },
+    });
+    let finalSales = [];
+
+    sales.map((sale) => {
+      delete sale.seller;
+      finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+    });
+
+    return { finalSales, sales };
+  }
+
+  async getDaileSales() {
+    const { sales } = await this._getSalesOfMonth();
+
+    const SellForDayOnCurrentMonth: {
+      [date: string]: {
+        total: number;
+        profits: number;
+      };
+    } = {};
+
+    sales.forEach((sale) => {
+      if (sale.date in SellForDayOnCurrentMonth) {
+        SellForDayOnCurrentMonth[sale.date].profits += sale.totalProfit;
+        SellForDayOnCurrentMonth[sale.date].total += sale.totalPrice;
+      } else {
+        SellForDayOnCurrentMonth[sale.date] = {
+          profits: sale.totalProfit,
+          total: sale.totalPrice,
+        };
+      }
+    });
+
+    return SellForDayOnCurrentMonth;
   }
 
   private handleDbErrors(error: any): never {

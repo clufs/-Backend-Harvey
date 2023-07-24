@@ -58,4 +58,10 @@ export class SalesController {
   getSummaryOfTheMonth(@GetUser() owner: User) {
     return this.salesService.getSummeryOfTheMonth(owner);
   }
+
+  @Get('get-sales-details-of-month')
+  @Auth(ValidRoles.owner)
+  getSalesDetailsOfMonth(@GetUser() owner: User) {
+    return this.salesService.getDaileSales();
+  }
 }

@@ -29,7 +29,9 @@ export class SalesService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async create({ cart, card, ...rest }: any, employee: Employee) {
+  async create(body: any, employee: Employee) {
+    const { cart, card, ...rest } = body;
+    console.log(body);
     const finalCart = cart.map((item) => JSON.parse(item));
     const { totalPrice, totalProfit } = await this._calculate(finalCart, card);
 
@@ -52,13 +54,14 @@ export class SalesService {
         seller: employee,
       });
 
-      await this.salesRepository.save(order);
+      // await this.salesRepository.save(order);
 
       delete order.totalProfit, delete order.cart;
       delete order.seller;
 
       return order;
     } catch (error) {
+      console.log(error);
       this.handleDbErrors(error);
     }
   }
@@ -89,13 +92,13 @@ export class SalesService {
     const impuestoTotalCredito = totalPrice * finalImpCredit;
     const impuestoTotalDebito = totalPrice * finalImpDebit;
 
-    switch (card) {
-      case 'debit':
+    if (card) {
+      if (card == 'debit')
         totalProfit = totalPrice - totalPriceToBuy - impuestoTotalDebito;
-        break;
-      case 'credit':
+      if (card == 'credit')
         totalProfit = totalPrice - totalPriceToBuy - impuestoTotalCredito;
-        break;
+    } else {
+      totalProfit = totalPrice - totalPriceToBuy;
     }
 
     return {

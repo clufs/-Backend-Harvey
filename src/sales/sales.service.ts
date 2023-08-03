@@ -69,7 +69,7 @@ export class SalesService {
     }
   }
 
-  private async _calculate(cart: any, card: string) {
+  private async _calculate(cart: any, cardType: string) {
     const debitImp = 0.0335;
     const creditImp = 0.0179;
     const iibb = 0.03;
@@ -95,12 +95,12 @@ export class SalesService {
     const impuestoTotalCredito = totalPrice * finalImpCredit;
     const impuestoTotalDebito = totalPrice * finalImpDebit;
 
-    if (card) {
-      if (card == 'debit')
+    if (cardType === 'debit' || 'credit') {
+      if (cardType == 'debit')
         totalProfit = Math.round(
           totalPrice - totalPriceToBuy - impuestoTotalDebito,
         );
-      if (card == 'credit')
+      if (cardType == 'credit')
         totalProfit = Math.round(
           totalPrice - totalPriceToBuy - impuestoTotalCredito,
         );

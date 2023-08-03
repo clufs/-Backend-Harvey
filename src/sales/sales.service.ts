@@ -11,7 +11,7 @@ import { Employee } from '../employee/entities/employee.entity';
 import { User } from '../auth/entities/user.entity';
 
 import * as moment from 'moment-timezone';
-import { CardType, CreateSaleDto } from './dto/create-sale.dto';
+import { CreateSaleDto } from './dto/create-sale.dto';
 
 interface TypeOfSale {
   cardSale: number;
@@ -63,11 +63,11 @@ export class SalesService {
     }
   }
 
-  private async _calculate(cart: any, card: CardType) {
-    const debitImp = parseFloat(process.env.DEBIT_MP);
-    const creditImp = parseFloat(process.env.CREDIT_MP);
-    const iibb = parseFloat(process.env.IIBB);
-    const sirtac = parseFloat(process.env.SIRTAC);
+  private async _calculate(cart: any, card: string) {
+    const debitImp = 0.0335;
+    const creditImp = 0.0179;
+    const iibb = 0.03;
+    const sirtac = 0.03;
 
     const finalImpCredit = creditImp + iibb + sirtac;
     const finalImpDebit = debitImp + iibb + sirtac;

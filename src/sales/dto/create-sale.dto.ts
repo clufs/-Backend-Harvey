@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsString, IsOptional } from 'class-validator';
 import { ProductsInCart } from '../interface/productCart.interface';
 
-export type CardType = 'credit' | 'debit';
 
 export class CreateSaleDto {
   @ApiProperty({
@@ -21,7 +20,12 @@ export class CreateSaleDto {
   @IsString()
   payment_method: string;
 
+  @ApiProperty({
+    description: 'Metodo de Tarjeta',
+    nullable: true,
+    minLength: 1,
+  })
   @IsOptional()
   @IsString()
-  cardType: CardType;
+  cardType: string;
 }

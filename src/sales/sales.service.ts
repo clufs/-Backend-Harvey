@@ -54,7 +54,7 @@ export class SalesService {
         seller: employee,
       });
 
-      // await this.salesRepository.save(order);
+      await this.salesRepository.save(order);
 
       delete order.totalProfit, delete order.cart;
       delete order.seller;

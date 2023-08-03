@@ -97,11 +97,15 @@ export class SalesService {
 
     if (card) {
       if (card == 'debit')
-        totalProfit = totalPrice - totalPriceToBuy - impuestoTotalDebito;
+        totalProfit = Math.round(
+          totalPrice - totalPriceToBuy - impuestoTotalDebito,
+        );
       if (card == 'credit')
-        totalProfit = totalPrice - totalPriceToBuy - impuestoTotalCredito;
+        totalProfit = Math.round(
+          totalPrice - totalPriceToBuy - impuestoTotalCredito,
+        );
     } else {
-      totalProfit = totalPrice - totalPriceToBuy;
+      totalProfit = Math.round(totalPrice - totalPriceToBuy);
     }
 
     return {

@@ -95,7 +95,7 @@ export class SalesService {
     const impuestoTotalCredito = totalPrice * finalImpCredit;
     const impuestoTotalDebito = totalPrice * finalImpDebit;
 
-    if (cardType === 'debit' || 'credit') {
+    if (cardType) {
       if (cardType == 'debit')
         totalProfit = Math.round(
           totalPrice - totalPriceToBuy - impuestoTotalDebito,

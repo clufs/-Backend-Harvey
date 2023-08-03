@@ -11,6 +11,7 @@ import { Employee } from '../employee/entities/employee.entity';
 import { User } from '../auth/entities/user.entity';
 
 import * as moment from 'moment-timezone';
+import { CardType, CreateSaleDto } from './dto/create-sale.dto';
 
 interface TypeOfSale {
   cardSale: number;
@@ -28,12 +29,10 @@ export class SalesService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async create({ cart, ...rest }: any, employee: Employee) {
+  async create({ cart, card, ...rest }: any, employee: Employee) {
     const finalCart = cart.map((item) => JSON.parse(item));
-    const { totalPrice, totalProfit } = await this.calculate(finalCart);
+    const { totalPrice, totalProfit } = await this._calculate(finalCart, card);
 
-    // const date = this.formatDay(new Date());
-    // const period = this.formatPeriod(new Date());
     const date = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('D/M/YYYY');
@@ -64,9 +63,18 @@ export class SalesService {
     }
   }
 
-  private async calculate(cart: any) {
+  private async _calculate(cart: any, card: CardType) {
+    const debitImp = parseFloat(process.env.DEBIT_MP);
+    const creditImp = parseFloat(process.env.CREDIT_MP);
+    const iibb = parseFloat(process.env.IIBB);
+    const sirtac = parseFloat(process.env.SIRTAC);
+
+    const finalImpCredit = creditImp + iibb + sirtac;
+    const finalImpDebit = debitImp + iibb + sirtac;
+
     let totalPrice: number = 0;
     let totalPriceToBuy: number = 0;
+    let totalProfit: number = 0;
 
     for (let i = 0; i < cart.length; i++) {
       const price =
@@ -78,16 +86,19 @@ export class SalesService {
           .priceToBuy * cart[i].cant;
     }
 
-    const discount = 0; //es un descuento de 0 pesos;
-
-    const priceWhitDiscount = Math.floor(totalPrice / 5000) * discount;
-
-    totalPrice = totalPrice - priceWhitDiscount;
+    switch (card) {
+      case 'debit':
+        totalProfit = totalPrice - totalPriceToBuy - finalImpDebit;
+        break;
+      case 'credit':
+        totalProfit = totalPrice - totalPriceToBuy - finalImpCredit;
+        break;
+    }
 
     return {
       totalPrice,
       totalPriceToBuy,
-      totalProfit: totalPrice - totalPriceToBuy,
+      totalProfit,
     };
   }
   //FIXME: esto tenemos que ver que onda con el tiempo de busqueda.Si conviene pasarse a graphql.
@@ -270,14 +281,15 @@ export class SalesService {
           (cantidadRepetida[producto.name].name = producto.name),
             (cantidadRepetida[producto.name].id = producto.id),
             (cantidadRepetida[producto.name].cant += producto.cant);
-          cantidadRepetida[producto.name].total +=
-            producto.cant * producto.price;
+          // cantidadRepetida[producto.name].total +=
+          //FIXME: producto.cant * ;
         } else {
           cantidadRepetida[producto.name] = {
             name: producto.name,
             id: producto.id,
             cant: producto.cant,
             total: producto.cant * producto.price,
+            //FIXME: profits: producto.cant *
           };
         }
       });
@@ -351,6 +363,8 @@ export class SalesService {
       delete sale.seller;
       finalSales.push(sale.cart.map((item) => JSON.parse(item)));
     });
+
+    console.log(finalSales, sales);
 
     return { finalSales, sales };
   }

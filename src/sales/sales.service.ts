@@ -86,12 +86,15 @@ export class SalesService {
           .priceToBuy * cart[i].cant;
     }
 
+    const impuestoTotalCredito = totalPrice * finalImpCredit;
+    const impuestoTotalDebito = totalPrice * finalImpDebit;
+
     switch (card) {
       case 'debit':
-        totalProfit = totalPrice - totalPriceToBuy - finalImpDebit;
+        totalProfit = totalPrice - totalPriceToBuy - impuestoTotalDebito;
         break;
       case 'credit':
-        totalProfit = totalPrice - totalPriceToBuy - finalImpCredit;
+        totalProfit = totalPrice - totalPriceToBuy - impuestoTotalCredito;
         break;
     }
 

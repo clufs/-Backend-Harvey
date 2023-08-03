@@ -30,10 +30,13 @@ export class SalesService {
   ) {}
 
   async create(body: any, employee: Employee) {
-    const { cart, card, ...rest } = body;
+    const { cart, cardType, ...rest } = body;
     console.log(body);
     const finalCart = cart.map((item) => JSON.parse(item));
-    const { totalPrice, totalProfit } = await this._calculate(finalCart, card);
+    const { totalPrice, totalProfit } = await this._calculate(
+      finalCart,
+      cardType,
+    );
 
     const date = moment()
       .tz('America/Argentina/Buenos_Aires')

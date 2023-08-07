@@ -102,6 +102,9 @@ export class ProductsService {
         if (updateProductDto.priceToSell)
           productToUpdate.priceToSell = updateProductDto.priceToSell;
 
+        if (updateProductDto.stock)
+          productToUpdate.stock = updateProductDto.stock;
+
         productToUpdate.profit =
           productToUpdate.priceToSell - productToUpdate.priceToBuy;
         return this.productRepository.save(productToUpdate);

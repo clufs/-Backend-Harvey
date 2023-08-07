@@ -14,13 +14,8 @@ import { ProductsModule } from '../products/products.module';
     ConfigModule,
     TypeOrmModule.forFeature([Sale]),
     AuthModule,
-    ProductsModule
+    ProductsModule,
   ],
-  exports: [
-    TypeOrmModule,
-    SalesService
-  ]
-
+  exports: [TypeOrmModule, SalesService],
 })
-
 export class SalesModule {}

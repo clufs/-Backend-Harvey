@@ -11,7 +11,7 @@ import { Employee } from '../employee/entities/employee.entity';
 import { User } from '../auth/entities/user.entity';
 
 import * as moment from 'moment-timezone';
-import { CreateSaleDto } from './dto/create-sale.dto';
+import { ProductsInCart } from './interface/productCart.interface';
 
 interface TypeOfSale {
   cardSale: number;
@@ -56,7 +56,10 @@ export class SalesService {
         seller: employee,
       });
 
-      await this.salesRepository.save(order);
+      await Promise.all([
+        this._updateProductStock(cart),
+        this.salesRepository.save(order),
+      ]);
 
       delete order.totalProfit, delete order.cart;
       delete order.seller;
@@ -65,6 +68,30 @@ export class SalesService {
     } catch (error) {
       console.log(error);
       this.handleDbErrors(error);
+    }
+  }
+
+  private async _updateProductStock(cart) {
+    // Obtener los productos en el carrito
+    const productsInCart: ProductsInCart[] = cart.map((product) =>
+      JSON.parse(product),
+    );
+    console.log(productsInCart);
+
+    // Actualizar el stock de cada producto en el carrito
+    for (const productInCart of productsInCart) {
+      // Obtener el producto
+
+      const product = await this.productRepository.findOne({
+        where: { id: productInCart.id },
+      });
+
+      // Actualizar el stock del producto
+      product.stock -= productInCart.cant;
+
+      console.log(product);
+
+      await this.productRepository.save(product);
     }
   }
 

@@ -31,7 +31,6 @@ export class SalesService {
 
   async create(body: any, employee: Employee) {
     const { cart, cardType, ...rest } = body;
-    console.log(body);
     const finalCart = cart.map((item) => JSON.parse(item));
     const { totalPrice, totalProfit } = await this._calculate(
       finalCart,

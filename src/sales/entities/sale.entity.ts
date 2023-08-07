@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/products/entities/product.entity';
 import {
+  AfterInsert,
   BeforeInsert,
   Column,
   Entity,
@@ -87,4 +88,24 @@ export class Sale {
   })
   @Column('text')
   payment_method: 'efectivo' | 'deposito' | 'tarjeta';
+
+  @BeforeInsert()
+  async updateProductStock() {
+    // Obtener los productos en el carrito
+    const productsInCart: ProductsInCart[] = this.cart.map((product) =>
+      JSON.parse(product),
+    );
+
+    // Actualizar el stock de cada producto en el carrito
+    for (const productInCart of productsInCart) {
+      // Obtener el producto
+      const product = await this.productRepository.findOne({
+        where: { id: productInCart.id },
+      });
+
+      // Actualizar el stock del producto
+      product.stock -= productInCart.cant;
+      await this.productRepository.save(product);
+    }
+  }
 }

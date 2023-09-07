@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../products/entities/product.entity';
@@ -177,13 +177,6 @@ export class SalesService {
     });
 
     return toSend;
-
-    // return {
-    //   toSend,
-    //   totalCard,
-    //   totalCash,
-    //   totalTransf,
-    // };
   }
 
   //!ownergetAllSales
@@ -248,7 +241,7 @@ export class SalesService {
     const currentPeriod = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('M/YYYY');
-    console.log('El periodo actual es: ' + currentPeriod);
+    console.log('El periodo actual es: ' + currentPeriod); // (02/2023)
 
     let totalMothProfits = 0;
     let totalMonthIncome = 0;
@@ -257,10 +250,14 @@ export class SalesService {
 
     try {
       const allSales = await this.salesRepository.find();
-      const sales = allSales.filter(
-        (sale) =>
-          sale.seller.owner.id === owner.id && sale.period === currentPeriod,
+
+      //Ventas del negocio.
+      const ownSales = allSales.filter(
+        (sale) => sale.seller.owner.id === owner.id,
       );
+
+      //Ventas del corriente mes.
+      const sales = ownSales.filter((sale) => sale.period === currentPeriod);
 
       allSales.map((sale) => {
         if (sale.seller.owner.id === owner.id) {
@@ -443,24 +440,5 @@ export class SalesService {
     throw new InternalServerErrorException(
       'Porfavor revisar los logs del servidor.',
     );
-  }
-
-  private formatDay(day: Date) {
-    const yyyy = day.getFullYear();
-    let mm = day.getMonth() + 1;
-    let dd = day.getDate();
-
-    if (dd < 10) dd = 0 + dd;
-    if (mm < 10) mm = 0 + mm;
-
-    return dd + '/' + mm + '/' + yyyy;
-  }
-
-  private formatPeriod(day: Date): string {
-    const yyyy = day.getFullYear();
-    let mm = day.getMonth() + 1;
-    if (mm < 10) mm = 0 + mm;
-
-    return mm + '/' + yyyy;
   }
 }

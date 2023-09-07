@@ -40,7 +40,11 @@ export class Product {
     description: 'Precio del producto de venta',
     uniqueItems: true,
   })
-  @Column('float', { default: 0 })
+  @Column({
+    type: 'float',
+    transformer: { to: (value) => value, from: (value) => value },
+    default: 0,
+  })
   priceToSell: number;
 
   @ApiProperty({
@@ -48,10 +52,16 @@ export class Product {
     description: 'Precio de compra del producto',
     uniqueItems: true,
   })
-  @Column('float', { default: 0 })
+  @Column({
+    type: 'float',
+    transformer: { to: (value) => value, from: (value) => value },
+    default: 0,
+  })
   priceToBuy: number;
 
-  @Column('float', {
+  @Column({
+    type: 'float',
+    transformer: { to: (value) => value, from: (value) => value },
     default: 0,
   })
   profit: number;

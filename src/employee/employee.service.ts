@@ -145,7 +145,6 @@ export class EmployeeService {
         select: ['id', 'priceToSell', 'title'],
       });
 
-      console.log(products);
       return products;
     } catch (error) {
       this.handleDBExceptions(error);

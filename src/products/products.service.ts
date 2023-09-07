@@ -17,9 +17,9 @@ import { Employee } from '../employee/entities/employee.entity';
 import * as PDFDocument from 'pdfkit';
 
 import * as bwipjs from 'bwip-js';
+import * as bcrypt from 'bcrypt';
 
 import { Response } from 'express';
-import { options } from 'pdfkit';
 
 @Injectable()
 export class ProductsService {

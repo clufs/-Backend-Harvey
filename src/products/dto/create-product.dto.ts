@@ -41,7 +41,7 @@ export class CreateProductDto {
   provider: string;
 
   @ApiProperty({
-    description: 'Precio de COMPRA del producto',
+    description: 'Precio de COMPRA del productoa',
     nullable: false,
     minimum: 0,
   })

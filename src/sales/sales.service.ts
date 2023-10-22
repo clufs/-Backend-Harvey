@@ -177,13 +177,15 @@ export class SalesService {
     });
 
     return toSend;
+  }
 
-    // return {
-    //   toSend,
-    //   totalCard,
-    //   totalCash,
-    //   totalTransf,
-    // };
+  //Obtener Resumen del dia
+  async getResumeOfDay(owner: User, day: string) {
+    const sales = await this.salesRepository.find();
+
+    const salesOfDay = sales.filter(
+      (sales) => sales.date === day && sales.seller.owner.id === owner.id,
+    );
   }
 
   //!ownergetAllSales
@@ -320,7 +322,8 @@ export class SalesService {
           (cantidadRepetida[producto.name].name = producto.name),
             (cantidadRepetida[producto.name].id = producto.id),
             (cantidadRepetida[producto.name].cant += producto.cant);
-          // cantidadRepetida[producto.name].total +=
+          cantidadRepetida[producto.name].total +=
+            producto.cant * producto.price;
           //FIXME: producto.cant * ;
         } else {
           cantidadRepetida[producto.name] = {
@@ -443,24 +446,5 @@ export class SalesService {
     throw new InternalServerErrorException(
       'Porfavor revisar los logs del servidor.',
     );
-  }
-
-  private formatDay(day: Date) {
-    const yyyy = day.getFullYear();
-    let mm = day.getMonth() + 1;
-    let dd = day.getDate();
-
-    if (dd < 10) dd = 0 + dd;
-    if (mm < 10) mm = 0 + mm;
-
-    return dd + '/' + mm + '/' + yyyy;
-  }
-
-  private formatPeriod(day: Date): string {
-    const yyyy = day.getFullYear();
-    let mm = day.getMonth() + 1;
-    if (mm < 10) mm = 0 + mm;
-
-    return mm + '/' + yyyy;
   }
 }

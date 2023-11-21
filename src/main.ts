@@ -4,8 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
-import * as moment from 'moment-timezone';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();

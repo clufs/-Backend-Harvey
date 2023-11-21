@@ -12,7 +12,7 @@ import { EmployeLoginModule } from './employe-login/employe-login.module';
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      ssl: true,
+      ssl: true, //TODO: esto tengo que ver que onda con la mierda de ssl
       // ssl:
       //   process.env.STATE === 'prod'
       //     ? { rejectUnauthorized: false, sslmode: 'require' }

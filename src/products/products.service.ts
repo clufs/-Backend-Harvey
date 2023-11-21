@@ -14,9 +14,9 @@ import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interface';
 import { Employee } from '../employee/entities/employee.entity';
 
-import * as PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
 
-import * as bwipjs from 'bwip-js';
+import bwipjs from 'bwip-js';
 
 import { Response } from 'express';
 import { options } from 'pdfkit';

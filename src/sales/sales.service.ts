@@ -10,7 +10,7 @@ import { Product } from '../products/entities/product.entity';
 import { Employee } from '../employee/entities/employee.entity';
 import { User } from '../auth/entities/user.entity';
 
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 import { ProductsInCart } from './interface/productCart.interface';
 
 interface TypeOfSale {

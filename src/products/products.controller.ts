@@ -52,9 +52,9 @@ export class ProductsController {
     return this.productsService.update(updateProductDto, user);
   }
 
-  @Get('pdf')
-  @Auth(ValidRoles.owner)
-  generatePdf(@Res() res: Response, @GetUser() user: User) {
-    return this.productsService.generatePDF(res, user);
-  }
+  // @Get('pdf')
+  // @Auth(ValidRoles.owner)
+  // generatePdf(@Res() res: Response, @GetUser() user: User) {
+  //   return this.productsService.generatePDF(res, user);
+  // }
 }

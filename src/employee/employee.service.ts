@@ -142,7 +142,7 @@ export class EmployeeService {
     try {
       const products = await this.productRepository.find({
         where: { user: { id: employee.owner.id } },
-        select: ['id', 'priceToSell', 'title'],
+        select: ['id', 'priceToSell', 'title', 'category'],
       });
 
       console.log(products);

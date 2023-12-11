@@ -6,6 +6,8 @@ import { ProductsModule } from './products/products.module';
 import { EmployeeModule } from './employee/employee.module';
 import { SalesModule } from './sales/sales.module';
 import { EmployeLoginModule } from './employe-login/employe-login.module';
+import { TshirtModule } from './tshirt/tshirt.module';
+import { HatsModule } from './hats/hats.module';
 
 @Module({
   imports: [
@@ -36,6 +38,10 @@ import { EmployeLoginModule } from './employe-login/employe-login.module';
     SalesModule,
 
     EmployeLoginModule,
+
+    TshirtModule,
+
+    HatsModule,
   ],
 })
 export class AppModule {

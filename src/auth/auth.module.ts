@@ -17,7 +17,7 @@ import { Employee } from '../employee/entities/employee.entity';
     ConfigModule,
     // EmployeeModule,
 
-    TypeOrmModule.forFeature([User,Employee]), //! Aca definimos las colecciones.
+    TypeOrmModule.forFeature([User, Employee]), //! Aca definimos las colecciones.
 
     PassportModule.register({ defaultStrategy: 'jwt' }), //! definimos la estrategia (jwt)
 
@@ -30,19 +30,13 @@ import { Employee } from '../employee/entities/employee.entity';
         return {
           secret: configService.get('JWT_SECRET'),
           signOptions: {
-            expiresIn: '24h',
+            expiresIn: '7d',
           },
         };
       },
     }),
   ],
 
-  exports:[
-    TypeOrmModule,
-    JwtStrategy,
-    PassportModule,
-    JwtModule,
-    AuthService
-  ]
+  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule, AuthService],
 })
 export class AuthModule {}

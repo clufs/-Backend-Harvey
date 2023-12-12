@@ -64,4 +64,10 @@ export class SalesController {
   getSalesDetailsOfMonth(@GetUser() owner: User) {
     return this.salesService.getDaileSales();
   }
+
+  @Post('get-sales-day')
+  @Auth(ValidRoles.employee, ValidRoles.owner)
+  getSummaryOfOneDay(@GetUser() owner, @Body() body: { date: string }) {
+    return this.salesService.getSummaryOfOneDay(owner, body);
+  }
 }

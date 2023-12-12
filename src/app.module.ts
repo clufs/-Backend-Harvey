@@ -6,8 +6,9 @@ import { ProductsModule } from './products/products.module';
 import { EmployeeModule } from './employee/employee.module';
 import { SalesModule } from './sales/sales.module';
 import { EmployeLoginModule } from './employe-login/employe-login.module';
-import { TshirtModule } from './tshirt/tshirt.module';
 import { HatsModule } from './hats/hats.module';
+import { ModalShirtModule } from './shrits/modal_shirt/modal_shirt.module';
+import { RegularCottonShirtModule } from './shrits/regular_cotton_shirt/regular_cotton_shirt.module';
 
 @Module({
   imports: [
@@ -39,9 +40,11 @@ import { HatsModule } from './hats/hats.module';
 
     EmployeLoginModule,
 
-    TshirtModule,
-
     HatsModule,
+
+    ModalShirtModule,
+
+    RegularCottonShirtModule,
   ],
 })
 export class AppModule {

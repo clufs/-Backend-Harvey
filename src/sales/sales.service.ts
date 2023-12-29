@@ -369,12 +369,14 @@ export class SalesService {
     };
   }
 
-  async getSummaryOfOneDay(owner: User, body: any) {
+  async getSummaryOfOneDay(body: any, owner: User) {
     const { date } = body;
 
     const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
 
     const { finalSales, sales } = await this._getSalesOfDay(date);
+
+    console.log();
 
     const cantidadRepetida: {
       [name: string]: {
@@ -427,15 +429,11 @@ export class SalesService {
     );
 
     return {
-      total: totalMonthIncome,
-      profits: totalMothProfits,
+      subTotal,
       cardSale,
       transfSale,
       cashSale,
-
-      sales: obj,
-
-      subTotal,
+      sales: obj.sort((a, b) => b.total - a.total),
     };
   }
 
@@ -540,14 +538,3 @@ export class SalesService {
     );
   }
 }
-
-const hola = {
-  1: [1, 5, 0],
-  2: [0, 0, 10],
-  5: [0, 5, 0],
-  16: [0, 5, 1],
-  33: [1, 5, 0],
-  22: [0, 0, 10],
-  44: [0, 5, 0],
-  74: [0, 5, 1],
-};

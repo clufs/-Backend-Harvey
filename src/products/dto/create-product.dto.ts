@@ -66,4 +66,5 @@ export class CreateProductDto {
   @IsPositive()
   @IsOptional()
   stock?: number;
+  //*Esta es la parte donde voy a implentar el servicio de peticion de petidos
 }

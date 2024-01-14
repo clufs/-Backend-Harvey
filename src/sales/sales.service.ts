@@ -306,6 +306,8 @@ export class SalesService {
 
     const { finalSales, sales } = await this._getSalesOfMonth();
 
+    const aa: Sale[] = finalSales;
+
     const cantidadRepetida: {
       [name: string]: {
         id: string;
@@ -347,12 +349,10 @@ export class SalesService {
       }),
     );
     //TODO: anaseh
-    let subtotla = 0;
+    let subTotal = 0;
     obj.forEach((a) => {
-      subtotla += a.total;
+      subTotal += a.total;
     });
-
-    console.log(subtotla);
 
     const { cardSale, cashSale, transfSale } = await this._calculateTypeSale(
       sales,
@@ -489,14 +489,17 @@ export class SalesService {
         period: period,
       },
     });
+
+    sales.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+
     let finalSales = [];
 
     sales.map((sale) => {
       delete sale.seller;
       finalSales.push(sale.cart.map((item) => JSON.parse(item)));
     });
-
-    console.log(finalSales, sales);
 
     return { finalSales, sales };
   }

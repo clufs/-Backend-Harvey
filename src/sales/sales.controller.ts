@@ -41,6 +41,12 @@ export class SalesController {
     return this.salesService.getSale(body, employee);
   }
 
+  @Post('get-sales-day')
+  @Auth(ValidRoles.owner)
+  getOneSalePerDay(@Body() body, @GetUser() owner: User) {
+    return this.salesService.getSummaryOfOneDay(body, owner);
+  }
+
   @Get('get-sales-today-owner')
   @Auth(ValidRoles.owner)
   getSalesTodayOwner(@GetUser() owner: User) {

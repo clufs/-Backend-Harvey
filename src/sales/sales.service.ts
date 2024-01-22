@@ -306,6 +306,8 @@ export class SalesService {
 
     const { finalSales, sales } = await this._getSalesOfMonth();
 
+    const aa: Sale[] = finalSales;
+
     const cantidadRepetida: {
       [name: string]: {
         id: string;
@@ -347,12 +349,10 @@ export class SalesService {
       }),
     );
     //TODO: anaseh
-    let subtotla = 0;
+    let subTotal = 0;
     obj.forEach((a) => {
-      subtotla += a.total;
+      subTotal += a.total;
     });
-
-    console.log(subtotla);
 
     const { cardSale, cashSale, transfSale } = await this._calculateTypeSale(
       sales,
@@ -366,6 +366,74 @@ export class SalesService {
       cashSale,
 
       sales: obj,
+    };
+  }
+
+  async getSummaryOfOneDay(body: any, owner: User) {
+    const { date } = body;
+
+    const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
+
+    const { finalSales, sales } = await this._getSalesOfDay(date);
+
+    console.log();
+
+    const cantidadRepetida: {
+      [name: string]: {
+        id: string;
+        name: string;
+        cant: number;
+        total: number;
+        profits?: number;
+      };
+    } = {};
+
+    finalSales.forEach((subcategory) => {
+      subcategory.forEach((producto) => {
+        if (producto.name in cantidadRepetida) {
+          (cantidadRepetida[producto.name].name = producto.name),
+            (cantidadRepetida[producto.name].id = producto.id),
+            (cantidadRepetida[producto.name].cant += producto.cant);
+          cantidadRepetida[producto.name].total +=
+            producto.cant * producto.price;
+          //FIXME: producto.cant * ;
+        } else {
+          cantidadRepetida[producto.name] = {
+            name: producto.name,
+            id: producto.id,
+            cant: producto.cant,
+            total: producto.cant * producto.price,
+            //FIXME: profits: producto.cant *
+          };
+        }
+      });
+    });
+
+    const obj = Object.entries(cantidadRepetida).map(
+      ([name, { id, cant, total, profits }]) => ({
+        name,
+        id,
+        cant,
+        total,
+        profits,
+      }),
+    );
+    //TODO: anaseh
+    let subTotal = 0;
+    obj.forEach((a) => {
+      subTotal += a.total;
+    });
+
+    const { cardSale, cashSale, transfSale } = await this._calculateTypeSale(
+      sales,
+    );
+
+    return {
+      subTotal,
+      cardSale,
+      transfSale,
+      cashSale,
+      sales: obj.sort((a, b) => b.total - a.total),
     };
   }
 
@@ -388,6 +456,28 @@ export class SalesService {
     };
   }
 
+  private async _getSalesOfDay(day: string) {
+    const sales = await this.salesRepository.find({
+      select: ['cart', 'totalPrice', 'totalProfit', 'payment_method', 'date'],
+      where: {
+        date: day,
+      },
+    });
+
+    console.log(sales);
+
+    let finalSales = [];
+
+    sales.map((sale) => {
+      delete sale.seller;
+      finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+    });
+
+    console.log(finalSales, sales);
+
+    return { finalSales, sales };
+  }
+
   private async _getSalesOfMonth() {
     const period = moment()
       .tz('America/Argentina/Buenos_Aires')
@@ -399,14 +489,17 @@ export class SalesService {
         period: period,
       },
     });
+
+    sales.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+
     let finalSales = [];
 
     sales.map((sale) => {
       delete sale.seller;
       finalSales.push(sale.cart.map((item) => JSON.parse(item)));
     });
-
-    console.log(finalSales, sales);
 
     return { finalSales, sales };
   }
@@ -448,14 +541,3 @@ export class SalesService {
     );
   }
 }
-
-const hola = {
-  1: [1, 5, 0],
-  2: [0, 0, 10],
-  5: [0, 5, 0],
-  16: [0, 5, 1],
-  33: [1, 5, 0],
-  22: [0, 0, 10],
-  44: [0, 5, 0],
-  74: [0, 5, 1],
-};

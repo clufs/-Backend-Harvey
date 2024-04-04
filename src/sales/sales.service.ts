@@ -304,7 +304,11 @@ export class SalesService {
   async getSummeryOfTheMonth(owner: User) {
     const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
 
-    const { finalSales, sales } = await this._getSalesOfMonth();
+    const period = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('M/YYYY');
+
+    const { finalSales, sales } = await this._getSalesOfMonth(period);
 
     const aa: Sale[] = finalSales;
 
@@ -478,10 +482,62 @@ export class SalesService {
     return { finalSales, sales };
   }
 
-  private async _getSalesOfMonth() {
-    const period = moment()
-      .tz('America/Argentina/Buenos_Aires')
-      .format('M/YYYY');
+  async getSalesOfMonth(body: any) {
+    const { period } = body;
+
+    const { sales, finalSales } = await this._getSalesOfMonth(period);
+
+    const tranfSales = [];
+    const cardSales = [];
+    const cashSales = [];
+
+    let totalProfit = 0;
+
+    let totalTranfsSales = 0;
+    let totalCardSales = 0;
+    let totalCashSales = 0;
+
+    sales.map((sale) => {
+      if (sale.payment_method === 'efectivo') {
+        cashSales.push(sale);
+        totalCashSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+      if (sale.payment_method === 'deposito') {
+        tranfSales.push(sale);
+        totalTranfsSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+      if (sale.payment_method === 'tarjeta') {
+        cardSales.push(sale);
+        totalCardSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+    });
+
+    return {
+      totalCardSales,
+      totalTranfsSales,
+      totalCashSales,
+      spacin1: '----',
+
+      total: totalCardSales + totalTranfsSales + totalCashSales,
+      totalProfit,
+      spacin: '----',
+
+      tranfSales,
+      cardSales,
+      cashSales,
+    };
+  }
+
+  private async _getSalesOfMonth(period: string) {
+    // const period = moment()
+    //   .tz('America/Argentina/Buenos_Aires')
+    //   .format('M/YYYY');
 
     const sales = await this.salesRepository.find({
       select: ['cart', 'totalPrice', 'totalProfit', 'payment_method', 'date'],
@@ -505,7 +561,10 @@ export class SalesService {
   }
 
   async getDaileSales() {
-    const { sales } = await this._getSalesOfMonth();
+    const period = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('M/YYYY');
+    const { sales } = await this._getSalesOfMonth(period);
 
     const SellForDayOnCurrentMonth: {
       [date: string]: {

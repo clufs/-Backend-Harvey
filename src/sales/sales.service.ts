@@ -308,7 +308,7 @@ export class SalesService {
       .tz('America/Argentina/Buenos_Aires')
       .format('M/YYYY');
 
-    const { finalSales, sales } = await this._getSalesOfMonth(period);
+    const { finalSales, sales } = await this._getSalesOfMonth(period, owner);
 
     const aa: Sale[] = finalSales;
 
@@ -377,16 +377,12 @@ export class SalesService {
   async getSummaryOfOneDay(body: any, owner: User) {
     const { date } = body;
 
-    const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
-
     const { finalSales, sales: allSales } = await this._getSalesOfDay(
       date,
       owner,
     );
 
     const sales = allSales.filter((sale) => sale.seller.owner.id === owner.id);
-
-    console.log();
 
     const cantidadRepetida: {
       [name: string]: {
@@ -495,10 +491,10 @@ export class SalesService {
     return { finalSales, sales };
   }
 
-  async getSalesOfMonth(body: any) {
+  async getSalesOfMonth(body: any, owner: User) {
     const { period } = body;
 
-    const { sales, finalSales } = await this._getSalesOfMonth(period);
+    const { sales, finalSales } = await this._getSalesOfMonth(period, owner);
 
     const tranfSales = [];
     const cardSales = [];
@@ -547,11 +543,7 @@ export class SalesService {
     };
   }
 
-  private async _getSalesOfMonth(period: string) {
-    // const period = moment()
-    //   .tz('America/Argentina/Buenos_Aires')
-    //   .format('M/YYYY');
-
+  private async _getSalesOfMonth(period: string, owner: User) {
     const sales = await this.salesRepository.find({
       select: [
         'cart',
@@ -564,6 +556,13 @@ export class SalesService {
       where: {
         period: period,
       },
+    });
+
+    sales.map((sale) => {
+      // delete sale.seller;
+      if (sale.seller.owner.id === owner.id) {
+        finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+      }
     });
 
     sales.sort(
@@ -588,7 +587,10 @@ export class SalesService {
     console.log(owner.id);
 
     // const period = '7/2024';
-    const { sales: allSales, finalSales } = await this._getSalesOfMonth(period);
+    const { sales: allSales, finalSales } = await this._getSalesOfMonth(
+      period,
+      owner,
+    );
 
     console.log(allSales);
 

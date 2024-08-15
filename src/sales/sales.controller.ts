@@ -74,6 +74,6 @@ export class SalesController {
   @Post('sales-of-one-month')
   @Auth(ValidRoles.owner)
   getSalesOfOneSingleMonth(@Body() body, @GetUser() owner: User) {
-    return this.salesService.getSalesOfMonth(body);
+    return this.salesService.getSalesOfMonth(body, owner);
   }
 }

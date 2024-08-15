@@ -544,6 +544,8 @@ export class SalesService {
   }
 
   private async _getSalesOfMonth(period: string, owner: User) {
+    let finalSales = [];
+
     const sales = await this.salesRepository.find({
       select: [
         'cart',
@@ -568,8 +570,6 @@ export class SalesService {
     sales.sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
-
-    let finalSales = [];
 
     sales.map((sale) => {
       // delete sale.seller;

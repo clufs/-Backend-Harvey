@@ -585,6 +585,10 @@ export class SalesService {
       };
     } = {};
 
+    if (sales.length == 0) {
+      return [];
+    }
+
     sales.forEach((sale) => {
       if (sale.date in SellForDayOnCurrentMonth) {
         SellForDayOnCurrentMonth[sale.date].profits += sale.totalProfit;

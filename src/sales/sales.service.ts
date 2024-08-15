@@ -569,6 +569,11 @@ export class SalesService {
     // const period = '7/2024';
     const { sales: allSales } = await this._getSalesOfMonth(period);
 
+    console.log({
+      owner,
+      allSales,
+    });
+
     const sales = allSales.filter(
       (sale) => sale.seller.owner.id === owner.id && sale.period === period,
     );

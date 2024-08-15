@@ -308,7 +308,7 @@ export class SalesService {
       .tz('America/Argentina/Buenos_Aires')
       .format('M/YYYY');
 
-    const { finalSales, sales } = await this._getSalesOfMonth(period, owner);
+    const { finalSales, allSales } = await this._getSalesOfMonth(period, owner);
 
     const aa: Sale[] = finalSales;
 
@@ -359,7 +359,7 @@ export class SalesService {
     });
 
     const { cardSale, cashSale, transfSale } = await this._calculateTypeSale(
-      sales,
+      allSales,
     );
     console.log(obj);
 
@@ -494,10 +494,7 @@ export class SalesService {
   async getSalesOfMonth(body: any, owner: User) {
     const { period } = body;
 
-    const { allSales: sales, finalSales } = await this._getSalesOfMonth(
-      period,
-      owner,
-    );
+    const { allSales, finalSales } = await this._getSalesOfMonth(period, owner);
 
     const tranfSales = [];
     const cardSales = [];
@@ -509,7 +506,7 @@ export class SalesService {
     let totalCardSales = 0;
     let totalCashSales = 0;
 
-    sales.map((sale) => {
+    allSales.map((sale) => {
       if (sale.payment_method === 'efectivo') {
         cashSales.push(sale);
         totalCashSales += sale.totalPrice;
@@ -587,10 +584,7 @@ export class SalesService {
     console.log(owner.id);
 
     // const period = '7/2024';
-    const { sales: allSales, finalSales } = await this._getSalesOfMonth(
-      period,
-      owner,
-    );
+    const { allSales, finalSales } = await this._getSalesOfMonth(period, owner);
 
     console.log(allSales);
 

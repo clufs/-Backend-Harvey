@@ -468,7 +468,14 @@ export class SalesService {
 
   private async _getSalesOfDay(day: string, owner: User) {
     const sales = await this.salesRepository.find({
-      select: ['cart', 'totalPrice', 'totalProfit', 'payment_method', 'date'],
+      select: [
+        'cart',
+        'totalPrice',
+        'totalProfit',
+        'payment_method',
+        'date',
+        'seller',
+      ],
       where: {
         date: day,
       },

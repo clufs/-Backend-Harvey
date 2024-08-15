@@ -571,11 +571,6 @@ export class SalesService {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
-    sales.map((sale) => {
-      // delete sale.seller;
-      finalSales.push(sale.cart.map((item) => JSON.parse(item)));
-    });
-
     return { finalSales, sales };
   }
 

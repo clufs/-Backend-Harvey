@@ -541,7 +541,14 @@ export class SalesService {
     //   .format('M/YYYY');
 
     const sales = await this.salesRepository.find({
-      select: ['cart', 'totalPrice', 'totalProfit', 'payment_method', 'date'],
+      select: [
+        'cart',
+        'totalPrice',
+        'totalProfit',
+        'payment_method',
+        'date',
+        'seller',
+      ],
       where: {
         period: period,
       },
@@ -554,7 +561,7 @@ export class SalesService {
     let finalSales = [];
 
     sales.map((sale) => {
-      delete sale.seller;
+      // delete sale.seller;
       finalSales.push(sale.cart.map((item) => JSON.parse(item)));
     });
 
@@ -566,17 +573,16 @@ export class SalesService {
       .tz('America/Argentina/Buenos_Aires')
       .format('M/YYYY');
 
+    console.log(owner.id);
+
     // const period = '7/2024';
-    const { sales: allSales } = await this._getSalesOfMonth(period);
+    const { sales: allSales, finalSales } = await this._getSalesOfMonth(period);
 
-    console.log({
-      owner,
-      allSales,
-    });
+    console.log(allSales);
 
-    const sales = allSales.filter(
-      (sale) => sale.seller.owner.id === owner.id && sale.period === period,
-    );
+    const sales = allSales.filter((sale) => sale.seller.owner.id === owner.id);
+
+    console.log(sales);
 
     const SellForDayOnCurrentMonth: {
       [date: string]: {
@@ -584,10 +590,6 @@ export class SalesService {
         profits: number;
       };
     } = {};
-
-    if (sales.length == 0) {
-      return [];
-    }
 
     sales.forEach((sale) => {
       if (sale.date in SellForDayOnCurrentMonth) {
@@ -601,6 +603,7 @@ export class SalesService {
       }
     });
 
+    console.log(SellForDayOnCurrentMonth);
     return SellForDayOnCurrentMonth;
   }
 

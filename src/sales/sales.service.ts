@@ -361,6 +361,7 @@ export class SalesService {
     const { cardSale, cashSale, transfSale } = await this._calculateTypeSale(
       sales,
     );
+    console.log(obj);
 
     return {
       total: totalMonthIncome,
@@ -560,11 +561,17 @@ export class SalesService {
     return { finalSales, sales };
   }
 
-  async getDaileSales() {
+  async getDaileSales(owner: User) {
     const period = moment()
       .tz('America/Argentina/Buenos_Aires')
       .format('M/YYYY');
-    const { sales } = await this._getSalesOfMonth(period);
+
+    // const period = '7/2024';
+    const { sales: allSales } = await this._getSalesOfMonth(period);
+
+    const sales = allSales.filter(
+      (sale) => sale.seller.owner.id === owner.id && sale.period === period,
+    );
 
     const SellForDayOnCurrentMonth: {
       [date: string]: {

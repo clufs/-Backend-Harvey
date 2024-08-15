@@ -379,7 +379,12 @@ export class SalesService {
 
     const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
 
-    const { finalSales, sales } = await this._getSalesOfDay(date);
+    const { finalSales, sales: allSales } = await this._getSalesOfDay(
+      date,
+      owner,
+    );
+
+    const sales = allSales.filter((sale) => sale.seller.owner.id === owner.id);
 
     console.log();
 
@@ -461,7 +466,7 @@ export class SalesService {
     };
   }
 
-  private async _getSalesOfDay(day: string) {
+  private async _getSalesOfDay(day: string, owner: User) {
     const sales = await this.salesRepository.find({
       select: ['cart', 'totalPrice', 'totalProfit', 'payment_method', 'date'],
       where: {
@@ -469,13 +474,13 @@ export class SalesService {
       },
     });
 
-    console.log(sales);
-
     let finalSales = [];
 
     sales.map((sale) => {
-      delete sale.seller;
-      finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+      // delete sale.seller;
+      if (sale.seller.owner.id === owner.id) {
+        finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+      }
     });
 
     console.log(finalSales, sales);

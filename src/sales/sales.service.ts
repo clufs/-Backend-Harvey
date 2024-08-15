@@ -494,7 +494,10 @@ export class SalesService {
   async getSalesOfMonth(body: any, owner: User) {
     const { period } = body;
 
-    const { sales, finalSales } = await this._getSalesOfMonth(period, owner);
+    const { allSales: sales, finalSales } = await this._getSalesOfMonth(
+      period,
+      owner,
+    );
 
     const tranfSales = [];
     const cardSales = [];
@@ -545,6 +548,7 @@ export class SalesService {
 
   private async _getSalesOfMonth(period: string, owner: User) {
     let finalSales = [];
+    let allSales = [];
 
     const sales = await this.salesRepository.find({
       select: [
@@ -564,6 +568,7 @@ export class SalesService {
       // delete sale.seller;
       if (sale.seller.owner.id === owner.id) {
         finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+        allSales.push(sale);
       }
     });
 
@@ -571,7 +576,7 @@ export class SalesService {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
-    return { finalSales, sales };
+    return { finalSales, allSales };
   }
 
   async getDaileSales(owner: User) {

@@ -611,8 +611,20 @@ export class SalesService {
       }
     });
 
+    const sortedSellForDayOnCurrentMonth = Object.keys(SellForDayOnCurrentMonth)
+      .sort(
+        (a, b) =>
+          moment(a, 'YYYY-MM-DD').unix() - moment(b, 'YYYY-MM-DD').unix(),
+      )
+      .reduce((obj, key) => {
+        obj[key] = SellForDayOnCurrentMonth[key];
+        return obj;
+      }, {});
+
+    //TODO: Esta es la funcion que tenemmos que cambiar para que se ordene correctamente las fechas.
+
     console.log(SellForDayOnCurrentMonth);
-    return SellForDayOnCurrentMonth;
+    return sortedSellForDayOnCurrentMonth;
   }
 
   private handleDbErrors(error: any): never {

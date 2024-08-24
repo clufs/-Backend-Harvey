@@ -77,16 +77,16 @@ export class SalesService {
       const toSendWhatsapp = `
               *Nueva venta!* 📦              
 *Metodo de pago*: ${order.payment_method}
-*Total*: *$${formatter.format(order.totalPrice)}*
-*Ganancia*: *$${formatter.format(order.totalProfit)}*
+*Total*: *${formatter.format(order.totalPrice)}*
+*Ganancia*: *${formatter.format(order.totalProfit)}*
 
-*$${date}*
-*Total*: *$${formatter.format(todayTotalIncome)}*\n
-*Ganancia*: *$${formatter.format(todayTotalProfits)}*\n
+*${date}*
+*Total*: *${formatter.format(todayTotalIncome)}*\n
+*Ganancia*: *${formatter.format(todayTotalProfits)}*\n
 
-*Tarjeta*: *$${formatter.format(todayTotalTarj)}*\n
-*Efectivo*: *$${formatter.format(todayTotalEfec)}*\n
-*Transferencia*: *$${formatter.format(todayTotalTranf)}*\n
+*Tarjeta*: *${formatter.format(todayTotalTarj)}*\n
+*Efectivo*: *${formatter.format(todayTotalEfec)}*\n
+*Transferencia*: *${formatter.format(todayTotalTranf)}*\n
       `;
 
       await this._seedMessage(employee.owner.phone, toSendWhatsapp);

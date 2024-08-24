@@ -61,6 +61,38 @@ export class SalesService {
         this.salesRepository.save(order),
       ]);
 
+      const {
+        todayTotalIncome,
+        todayTotalProfits,
+        todayTotalTarj,
+        todayTotalEfec,
+        todayTotalTranf,
+      } = await this.getSalesForDay(employee.owner);
+
+      const formatter = new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+      });
+
+      const toSendWhatsapp = `
+              *Nueva venta!* 📦\n
+              *ID*: ${order.id}\n
+              
+              *Metodo de pago*: _${order.payment_method}_\n
+              *Total*: *$${formatter.format(order.totalPrice)}*\n
+              *Ganancia*: *$${formatter.format(order.totalProfit)}*\n
+
+              *$${date}*\n
+              *total*: *$${formatter.format(todayTotalIncome)}*\n
+              *Ganancia*: *$${formatter.format(todayTotalProfits)}*\n
+
+              *Tarjeta*: *$${formatter.format(todayTotalTarj)}*\n
+              *Efectivo*: *$${formatter.format(todayTotalEfec)}*\n
+              *Transferencia*: *$${formatter.format(todayTotalTranf)}*\n
+      `;
+
+      await this._seedMessage(employee.owner.phone, toSendWhatsapp);
+
       delete order.totalProfit, delete order.cart;
       delete order.seller;
 
@@ -210,6 +242,10 @@ export class SalesService {
       let todayTotalIncome = 0;
       let todayTotalProfits = 0;
 
+      let todayTotalTarj = 0;
+      let todayTotalTranf = 0;
+      let todayTotalEfec = 0;
+
       const salesToSend = sales.map(function (sale) {
         return {
           id: sale.id,
@@ -222,13 +258,27 @@ export class SalesService {
       sales.forEach(function (sale) {
         todayTotalIncome = todayTotalIncome + sale.totalPrice;
         todayTotalProfits = todayTotalProfits + sale.totalProfit;
+        switch (sale.payment_method) {
+          case 'tarjeta':
+            todayTotalTarj += sale.totalPrice;
+            break;
+          case 'efectivo':
+            todayTotalEfec += sale.totalPrice;
+            break;
+          case 'deposito':
+            todayTotalTranf += sale.totalPrice;
+            break;
+        }
       });
 
       return {
         salesToSend,
-
+        // esto es hoy
         todayTotalIncome,
         todayTotalProfits,
+        todayTotalTarj,
+        todayTotalEfec,
+        todayTotalTranf,
 
         totalMonthIncome,
         totalMothProfits,
@@ -434,6 +484,33 @@ export class SalesService {
       sales,
     );
 
+    console.log(owner.phone);
+
+    const {
+      todayTotalIncome,
+      todayTotalProfits,
+      todayTotalTarj,
+      todayTotalEfec,
+      todayTotalTranf,
+    } = await this.getSalesForDay(owner);
+
+    //TODO: ACa tenemos que arregalr esto y colocarlo en la mierda de creacion de orden
+    // *ID*: ${order.id}\n
+    // *Metodo de pago*: _${order.payment_method}_\n
+    // *Total*: *$${order.totalPrice.toFixed(2)}*\n
+    // *Ganancia*: *$${order.totalProfit.toFixed(2)}*\n
+
+    // *$${date}*\n
+    // *total*: *$${todayTotalIncome.toFixed(2)}*\n
+    // *Ganancia*: *$${todayTotalProfits.toFixed(2)}*\n
+    //     const toSendWhatsapp = `
+    //                        *Nueva venta!* 📦\n
+    //                        ---------------------------------
+    // *Tarjeta*: $${todayTotalTarj}\n*Efectivo*: $${todayTotalEfec}\n*Transferencia*: $${todayTotalTranf}\n
+    //     `;
+
+    //     await this._seedMessage(owner.phone, toSendWhatsapp);
+
     return {
       subTotal,
       cardSale,
@@ -624,7 +701,51 @@ export class SalesService {
     //TODO: Esta es la funcion que tenemmos que cambiar para que se ordene correctamente las fechas.
 
     console.log(SellForDayOnCurrentMonth);
+
     return sortedSellForDayOnCurrentMonth;
+  }
+
+  private async _seedMessage(to: string, message: string) {
+    const whatsappApiUrl =
+      'https://graph.facebook.com/v20.0/389577380911238/messages';
+    const token =
+      'EAAKGZAsfbDmYBO6r5ArQTRwfXTpg0zB720ppbaZCEHBsn8WNwSzrxAUfB5Dhuh3ZApaXhnXLbibZCZBlNHv3IeDZBDFanKvxt2vybUw3ZBLEsaJlxfImIkPRN5FYeTIWbFUuY3BsUGPstiR92lZBKSRJx3ldl90lA3MPacZC4ZBeU1uIxvZAbk0cCxuizYZAhM2GJVVmUknKZC7FZBWEN6WZBGDw2AZD';
+    const payload = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: `+54${to}`, // Asegúrate de usar el formato correcto del número
+      type: 'text',
+      text: {
+        preview_url: true,
+        body: message,
+      },
+    };
+
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const response = await fetch(whatsappApiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Error sending WhatsApp message: ${JSON.stringify(errorData)}`,
+        );
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error sending WhatsApp message:', error.message);
+      throw error;
+    }
   }
 
   private handleDbErrors(error: any): never {

@@ -30,7 +30,7 @@ import { Employee } from '../employee/entities/employee.entity';
         return {
           secret: configService.get('JWT_SECRET'),
           signOptions: {
-            expiresIn: '7d',
+            expiresIn: '365d',
           },
         };
       },

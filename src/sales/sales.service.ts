@@ -707,7 +707,7 @@ export class SalesService {
     const whatsappApiUrl =
       'https://graph.facebook.com/v20.0/389577380911238/messages';
     const token =
-      'EAAKGZAsfbDmYBO093EoLSA8bmISELBolvutp5sMD3KtOjiSFTXidaTHQA37GL5VlW4SNGRp9vVLhXbA9V4GvQIgOER9DORluL989XS4t4wHFrPdxqZAQjsdkHN0F2hyx4EvDhts4FWWGzaZCvpgVw0QNrtdMLgQR4gPfNlj1S0kwKVoq6iNWrStWjCZBPc2NpXNBn7Syq4ZCqOUzhqLMZD';
+      'EAAKGZAsfbDmYBO5kaVeXrwn70s5mToyiv5BoAOkpSgNqqua3QgcdhYEcDsPq29hxZB9c0QvfdBZCMUwiROx9IkZAdXe7LQnIokc0IKR3sTsKu6r1Q5eZCEYF8CZCgm87uMiDPczYXQESRWv8fSdl6FlhASx81UGSsBzPjISUZBWYLZAkItJrEhWJ8DDAvsmHG6yluPVQHQgrhj61j28YEaUZD';
     const payload = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',

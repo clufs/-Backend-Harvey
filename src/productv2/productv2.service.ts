@@ -136,7 +136,7 @@ export class Productv2Service {
     owner: User,
   ) {
     const product = await this.productRepository.findOne({
-      where: { id: productId, user: owner },
+      where: { id: productId },
       relations: ['desing'],
     });
 

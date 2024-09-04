@@ -18,6 +18,7 @@ import {
   CreatePriceTierDto,
   CreateProductv2Dto,
   UpdateProductv2Dto,
+  UpdateSizeStockDto,
 } from './dto';
 
 @Controller('productv2')
@@ -71,5 +72,15 @@ export class Productv2Controller {
     @Body() createSizeDto: CreateSizesDto,
   ) {
     return this.productv2Service.addSizes(id, createSizeDto, user);
+  }
+
+  @Patch('size/:id')
+  @Auth(ValidRoles.owner)
+  async updateStock(
+    @GetUser() user: User,
+    @Param('id') id: string,
+    @Body() updateStock: UpdateSizeStockDto,
+  ) {
+    return this.productv2Service.updateStock(id, updateStock, user);
   }
 }

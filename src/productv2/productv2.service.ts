@@ -19,6 +19,7 @@ import {
   CreateDesingDto,
   CreatePriceTierDto,
   CreateSizesDto,
+  UpdateSizeStockDto,
 } from './dto';
 import { UpdateProductv2Dto } from './dto/update-productv2.dto';
 
@@ -239,6 +240,27 @@ export class Productv2Service {
       status: 'sucess',
       // prod: color.desing.product,
     };
+  }
+
+  @Auth(ValidRoles.owner)
+  async updateStock(id: string, updateSizeDto: UpdateSizeStockDto, user: User) {
+    const size = await this.sizeRepository.findOne({ where: { id } });
+
+    if (!size) {
+      throw new NotFoundException('Talle no encontrado');
+    }
+
+    size.stock = updateSizeDto.stock;
+
+    try {
+      await this.sizeRepository.save(size);
+      return {
+        status: 'sucess',
+        size,
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   private handleDBExceptions(error: any) {

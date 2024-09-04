@@ -1,7 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 
 export class CreatePriceTierDto {
+  @ApiProperty({
+    example: 3,
+    description: 'Cantidad mínima requerida para aplicar este precio',
+  })
+  @IsNumber()
+  @IsOptional()
+  id?: string;
+
   @ApiProperty({
     example: 3,
     description: 'Cantidad mínima requerida para aplicar este precio',

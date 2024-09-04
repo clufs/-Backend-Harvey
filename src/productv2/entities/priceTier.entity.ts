@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Productv2 } from './productv2.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('priceTier')
 export class PriceTier {
@@ -30,5 +31,6 @@ export class PriceTier {
   @ManyToOne(() => Productv2, (product) => product.priceTiers, {
     onDelete: 'CASCADE',
   })
+  @Exclude({ toPlainOnly: true })
   product: Productv2;
 }

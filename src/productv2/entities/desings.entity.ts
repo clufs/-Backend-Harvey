@@ -25,7 +25,7 @@ export class Desing {
     uniqueItems: true,
   })
   @Column('text', { unique: true })
-  desingName: string;
+  designName: string;
 
   @ApiProperty({
     example: '/https://blabla/narym/ruta40chapa.jpg',

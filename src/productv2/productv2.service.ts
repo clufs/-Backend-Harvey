@@ -1,23 +1,44 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
-import { CreateProductv2Dto } from './dto/create-productv2.dto';
-import { UpdateProductv2Dto } from './dto/update-productv2.dto';
-import { User } from 'src/auth/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Productv2 } from './entities/productv2.entity';
 import { Repository } from 'typeorm';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interface';
-import { PriceTier } from './entities/priceTier.entity';
+
+import { Size, Color, PriceTier, Productv2, Desing } from './entities';
+import { User } from 'src/auth/entities/user.entity';
+
+import {
+  CreateProductv2Dto,
+  CreateColorDto,
+  CreateDesingDto,
+  CreatePriceTierDto,
+  CreateSizesDto,
+} from './dto';
+import { UpdateProductv2Dto } from './dto/update-productv2.dto';
 
 @Injectable()
 export class Productv2Service {
   constructor(
     @InjectRepository(Productv2)
     private readonly productRepository: Repository<Productv2>,
+
+    @InjectRepository(PriceTier)
+    private readonly priceTierRepository: Repository<PriceTier>,
+
+    @InjectRepository(Desing)
+    private readonly desingRepository: Repository<Desing>,
+
+    @InjectRepository(Color)
+    private readonly colorRepository: Repository<Color>,
+
+    @InjectRepository(Size)
+    private readonly sizeRepository: Repository<Size>,
   ) {}
 
   @Auth(ValidRoles.owner)
@@ -39,8 +60,6 @@ export class Productv2Service {
         priceTiers,
       });
 
-      // product.profit = priceToSell - priceToBuy;
-
       await this.productRepository.save(product);
 
       return {
@@ -51,20 +70,175 @@ export class Productv2Service {
     }
   }
 
-  findAll() {
-    return `This action returns all productv2`;
+  @Auth(ValidRoles.owner)
+  async update(id: string, updateProductDto: UpdateProductv2Dto, user: User) {
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: ['priceTiers'],
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    product.title = updateProductDto.title ?? product.title;
+    product.category = updateProductDto.category ?? product.category;
+    product.subCategory = updateProductDto.subCategory ?? product.subCategory;
+    product.provider = updateProductDto.provider ?? product.provider;
+    product.priceToBuy = updateProductDto.priceToBuy ?? product.priceToBuy;
+
+    // Manejar los niveles de precios (PriceTiers)
+    const existingPriceTiers = product.priceTiers;
+
+    // Eliminar niveles de precios que no estén en la actualización
+    const updatedPriceTiersIds = updateProductDto.priceTiers
+      .map((pt) => pt.id)
+      .filter((id) => id);
+    const priceTiersToRemove = existingPriceTiers.filter(
+      (pt) => !updatedPriceTiersIds.includes(pt.id),
+    );
+    await this.priceTierRepository.remove(priceTiersToRemove);
+
+    // Actualizar o crear nuevos niveles de precios
+    const updatedPriceTiers = updateProductDto.priceTiers.map(
+      (priceTierDto) => {
+        const existingPriceTier = existingPriceTiers.find(
+          (pt) => pt.id === priceTierDto.id,
+        );
+
+        if (existingPriceTier) {
+          // Actualizar el nivel de precio existente
+          existingPriceTier.minQuantity = priceTierDto.minQuantity;
+          existingPriceTier.price = priceTierDto.price;
+          return existingPriceTier;
+        } else {
+          // Crear un nuevo nivel de precio
+          const newPriceTier = new PriceTier();
+          newPriceTier.minQuantity = priceTierDto.minQuantity;
+          newPriceTier.price = priceTierDto.price;
+          newPriceTier.product = product; // Asignar la relación con el producto
+          return newPriceTier;
+        }
+      },
+    );
+
+    // Guardar el producto y los PriceTiers actualizados
+    product.priceTiers = updatedPriceTiers;
+    await this.productRepository.save(product);
+
+    return product;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} productv2`;
+  @Auth(ValidRoles.owner)
+  async addDesing(
+    productId: string,
+    createDesingDto: CreateDesingDto,
+    owner: User,
+  ) {
+    const product = await this.productRepository.findOne({
+      where: { id: productId, user: owner },
+      relations: ['desing'],
+    });
+
+    if (!product) {
+      throw new NotFoundException('Producto no encontrado...');
+    }
+
+    const newDesing = this.desingRepository.create({
+      ...createDesingDto,
+      product,
+    });
+
+    try {
+      product.desing.push(newDesing);
+
+      await this.desingRepository.save(newDesing);
+
+      await this.productRepository.save(product);
+      const updatedDesigns = await this.desingRepository.find({
+        where: { product: { id: productId } },
+      });
+
+      return updatedDesigns;
+    } catch (error) {
+      if (error.code === '23505') {
+        // Código de error para violación de restricción única en PostgreSQL
+        throw new ConflictException(
+          'Ese nombre ya esta ocupado. Porfavor elija otro!',
+        );
+      }
+      throw error;
+    }
   }
 
-  update(id: number, updateProductv2Dto: UpdateProductv2Dto) {
-    return `This action updates a #${id} productv2`;
+  @Auth(ValidRoles.owner)
+  async addColorToDesing(
+    desingId: string,
+    createColorDto: CreateColorDto,
+    user: User,
+  ) {
+    const desing = await this.desingRepository.findOne({
+      where: { id: desingId },
+      relations: ['color'],
+    });
+
+    if (!desing) {
+      throw new NotFoundException('diseño no encontrado...');
+    }
+
+    const newColor = this.colorRepository.create({
+      ...createColorDto,
+      desing,
+    });
+
+    try {
+      desing.color.push(newColor);
+
+      await this.colorRepository.save(newColor);
+
+      await this.desingRepository.save(desing);
+
+      const updateColors = await this.colorRepository.find({
+        where: { desing: { id: desingId } },
+      });
+
+      return updateColors;
+    } catch (error) {
+      if (error.code === '23505') {
+        // Código de error para violación de restricción única en PostgreSQL
+        throw new ConflictException(
+          'Ese nombre ya esta ocupado. Porfavor elija otro!',
+        );
+      }
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} productv2`;
+  @Auth(ValidRoles.owner)
+  async addSizes(id: string, createSizeDto: CreateSizesDto, user: User) {
+    const color = await this.colorRepository.findOne({
+      where: { id },
+      relations: ['size'],
+    });
+
+    if (!color) {
+      throw new NotFoundException('Color no encontrado');
+    }
+
+    const sizes = createSizeDto.sizes.map((sizeName) => {
+      const size = new Size();
+      size.title = sizeName;
+      size.color = color; // Asignar el diseño
+      return size;
+    });
+
+    // Guardar los talles en la base de datos
+    await this.sizeRepository.save(sizes);
+
+    return {
+      status: 'sucess',
+      // prod: color.desing.product,
+    };
   }
 
   private handleDBExceptions(error: any) {

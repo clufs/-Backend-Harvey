@@ -25,7 +25,7 @@ export class Size {
     description: 'Categoria del producto',
     uniqueItems: true,
   })
-  @Column('int')
+  @Column('int', { default: 0 })
   stock: number;
 
   @ManyToOne(() => Color, (color) => color.size)

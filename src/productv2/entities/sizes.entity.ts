@@ -28,6 +28,6 @@ export class Size {
   @Column('int')
   stock: number;
 
-  @ManyToOne(() => Color, (color) => color.size, { eager: true })
+  @ManyToOne(() => Color, (color) => color.size)
   color: Color;
 }

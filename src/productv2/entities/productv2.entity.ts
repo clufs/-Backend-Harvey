@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Desing } from './desings.entity';
+import { PriceTier } from './priceTier.entity';
 
 @Entity('productsV2')
 export class Productv2 {
@@ -51,25 +52,12 @@ export class Productv2 {
   provider: string;
 
   @ApiProperty({
-    example: 4000,
-    description: 'Precio del producto de venta',
-    uniqueItems: true,
-  })
-  @Column('float', { default: 0 })
-  priceToSell: number;
-
-  @ApiProperty({
     example: 2000,
     description: 'Precio de compra del producto',
     uniqueItems: true,
   })
   @Column('float', { default: 0 })
   priceToBuy: number;
-
-  @Column('float', {
-    default: 0,
-  })
-  profit: number;
 
   @ManyToOne(() => User, (user) => user.product, {
     eager: true,
@@ -81,4 +69,10 @@ export class Productv2 {
 
   @OneToMany(() => Desing, (desing) => desing.product)
   desing: Desing[];
+
+  @OneToMany(() => PriceTier, (priceTier) => priceTier.product, {
+    cascade: true,
+    eager: true,
+  })
+  priceTiers: PriceTier[];
 }

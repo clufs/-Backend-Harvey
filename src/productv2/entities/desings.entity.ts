@@ -36,9 +36,9 @@ export class Desing {
   urlImage: string;
 
   //Esta es la conexion del producto y desing....
-  @ManyToOne(() => Productv2, (product) => product.desing, { eager: true })
+  @ManyToOne(() => Productv2, (product) => product.desing)
   product: Productv2;
 
-  @OneToMany(() => Color, (color) => color.desing, { eager: true })
+  @OneToMany(() => Color, (color) => color.desing)
   color: Color[];
 }

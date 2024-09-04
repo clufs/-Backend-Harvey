@@ -30,8 +30,8 @@ export class Color {
   @ManyToOne(() => Desing, (desing) => desing.color)
   desing: Desing;
 
-  @OneToMany(() => Size, (size) => size.color, { eager: true })
-  size: Size;
+  @OneToMany(() => Size, (size) => size.color)
+  size: Size[];
 
   //todo entidad de diseno
   //   Size: Size; esto es uno a muchos

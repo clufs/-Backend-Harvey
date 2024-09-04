@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsPositive, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsPositive,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+import { CreatePriceTierDto } from './create-pricetier.dto';
+import { Type } from 'class-transformer';
 
 export class CreateProductv2Dto {
   @ApiProperty({
@@ -45,11 +54,11 @@ export class CreateProductv2Dto {
   priceToBuy: number;
 
   @ApiProperty({
-    description: 'Precio de VENTA del producto',
-    nullable: false,
-    minimum: 0,
+    type: [CreatePriceTierDto],
+    description: 'Lista de niveles de precios para diferentes cantidades',
   })
-  @IsNumber()
-  @IsPositive()
-  priceToSell: number;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePriceTierDto)
+  priceTiers: CreatePriceTierDto[];
 }

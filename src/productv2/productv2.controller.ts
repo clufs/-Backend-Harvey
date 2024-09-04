@@ -1,15 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { Productv2Service } from './productv2.service';
 import { CreateProductv2Dto } from './dto/create-productv2.dto';
 import { UpdateProductv2Dto } from './dto/update-productv2.dto';
+import { Auth, GetUser } from 'src/auth/decorators';
+import { User } from 'src/auth/entities/user.entity';
+import { ValidRoles } from 'src/auth/interface';
 
 @Controller('productv2')
 export class Productv2Controller {
   constructor(private readonly productv2Service: Productv2Service) {}
 
   @Post()
-  create(@Body() createProductv2Dto: CreateProductv2Dto) {
-    return this.productv2Service.create(createProductv2Dto);
+  @Auth(ValidRoles.owner)
+  create(
+    @Body() createProductv2Dto: CreateProductv2Dto,
+    @GetUser() user: User,
+  ) {
+    return this.productv2Service.create(createProductv2Dto, user);
   }
 
   @Get()
@@ -23,7 +38,10 @@ export class Productv2Controller {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductv2Dto: UpdateProductv2Dto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProductv2Dto: UpdateProductv2Dto,
+  ) {
     return this.productv2Service.update(+id, updateProductv2Dto);
   }
 

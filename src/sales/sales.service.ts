@@ -269,6 +269,8 @@ export class SalesService {
         }
       });
 
+      console.log(totalProfits);
+
       return {
         salesToSend,
         // esto es hoy
@@ -674,7 +676,15 @@ export class SalesService {
       };
     } = {};
 
-    sales.forEach((sale) => {
+    const sellsPayType: {
+      [date: string]: {
+        cash: number;
+        card: number;
+        transf: number;
+      };
+    } = {};
+
+    sales.forEach((sale: Sale) => {
       if (sale.date in SellForDayOnCurrentMonth) {
         SellForDayOnCurrentMonth[sale.date].profits += sale.totalProfit;
         SellForDayOnCurrentMonth[sale.date].total += sale.totalPrice;
@@ -683,6 +693,29 @@ export class SalesService {
           profits: sale.totalProfit,
           total: sale.totalPrice,
         };
+      }
+
+      if (!(sale.date in sellsPayType)) {
+        sellsPayType[sale.date] = {
+          cash: 0,
+          card: 0,
+          transf: 0,
+        };
+      }
+
+      // Sumar el monto según el tipo de pago
+      switch (sale.payment_method) {
+        case 'efectivo':
+          sellsPayType[sale.date].cash += sale.totalPrice;
+          break;
+        case 'tarjeta':
+          sellsPayType[sale.date].card += sale.totalPrice;
+          break;
+        case 'deposito':
+          sellsPayType[sale.date].transf += sale.totalPrice;
+          break;
+        default:
+          break;
       }
     });
 
@@ -696,11 +729,20 @@ export class SalesService {
         return obj;
       }, {});
 
-    //TODO: Esta es la funcion que tenemmos que cambiar para que se ordene correctamente las fechas.
+    const sortedSellsPayType = Object.keys(sellsPayType)
+      .sort(
+        (a, b) =>
+          moment(a, 'YYYY-MM-DD').unix() - moment(b, 'YYYY-MM-DD').unix(),
+      )
+      .reduce((obj, key) => {
+        obj[key] = sellsPayType[key];
+        return obj;
+      }, {});
 
-    console.log(SellForDayOnCurrentMonth);
+    console.log(sortedSellForDayOnCurrentMonth);
+    console.log(sortedSellsPayType);
 
-    return sortedSellForDayOnCurrentMonth;
+    return { sortedSellForDayOnCurrentMonth, sortedSellsPayType };
   }
 
   private async _seedMessage(to: string, message: string) {

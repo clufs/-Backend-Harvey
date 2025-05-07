@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../products/entities/product.entity';
@@ -352,9 +352,11 @@ export class SalesService {
   async getSummeryOfTheMonth(owner: User) {
     const { totalMonthIncome, totalMothProfits } = await this.getSales(owner);
 
-    const period = moment()
-      .tz('America/Argentina/Buenos_Aires')
-      .format('M/YYYY');
+    // const period = moment()
+    //   .tz('America/Argentina/Buenos_Aires')
+    //   .format('M/YYYY');
+
+    const period = '12/2024';
 
     const { finalSales, allSales } = await this._getSalesOfMonth(period, owner);
 
@@ -472,6 +474,7 @@ export class SalesService {
         profits,
       }),
     );
+
     //TODO: anaseh
     let subTotal = 0;
     obj.forEach((a) => {
@@ -482,15 +485,13 @@ export class SalesService {
       sales,
     );
 
-    console.log(owner.phone);
-
-    const {
-      todayTotalIncome,
-      todayTotalProfits,
-      todayTotalTarj,
-      todayTotalEfec,
-      todayTotalTranf,
-    } = await this.getSalesForDay(owner);
+    // const {
+    //   todayTotalIncome,
+    //   todayTotalProfits,
+    //   todayTotalTarj,
+    //   todayTotalEfec,
+    //   todayTotalTranf,
+    // } = await this.getSalesForDay(owner);
 
     //TODO: ACa tenemos que arregalr esto y colocarlo en la mierda de creacion de orden
     // *ID*: ${order.id}\n
@@ -557,7 +558,7 @@ export class SalesService {
     sales.map((sale) => {
       // delete sale.seller;
       if (sale.seller.owner.id === owner.id) {
-        finalSales.push(sale.cart.map((item) => JSON.parse(item)));
+        finalSales.push(sale.cart.map((item) => JSON.parse(item).id));
       }
     });
 
@@ -652,13 +653,13 @@ export class SalesService {
   }
 
   async getDaileSales(owner: User) {
-    const period = moment()
-      .tz('America/Argentina/Buenos_Aires')
-      .format('M/YYYY');
+    // const period = moment()
+    //   .tz('America/Argentina/Buenos_Aires')
+    //   .format('M/YYYY');
 
     console.log(owner.id);
 
-    // const period = '7/2024';
+    const period = '12/2024';
     const { allSales, finalSales } = await this._getSalesOfMonth(period, owner);
 
     console.log(allSales);
@@ -756,5 +757,120 @@ export class SalesService {
     throw new InternalServerErrorException(
       'Porfavor revisar los logs del servidor.',
     );
+  }
+
+  // Esta es la funcion para obtener laas ventas por un periodo determinado o simplemente obtener las ventas del dia.
+
+  async getSalesByPeriod(body: any, owner: User) {
+    let total = 0;
+    let totalTranfsSales = 0;
+    let totalCardSales = 0;
+    let totalCashSales = 0;
+    let totalProfit = 0;
+
+    const { startDate, endDate } = body;
+
+    console.log(body);
+
+    const sales = await this.salesRepository.find({
+      where: {
+        seller: {
+          owner: {
+            id: owner.id,
+          },
+        },
+      },
+    });
+
+    // const products = await this.productRepository.find({
+    //   where: {
+    //     user: {
+    //       id: owner.id,
+    //     },
+    //   },
+    // });
+
+    const filtered = sales.filter((sale) => {
+      sale.cart = sale.cart.map((item) => JSON.parse(item));
+      const [day, month, year] = sale.date.split('/');
+      const saleDate = new Date(`${year}-${month}-${day}`);
+      return saleDate >= new Date(startDate) && saleDate <= new Date(endDate);
+    });
+
+    //filtro para ver las ventas de tarjeta, transf y efectivo
+    filtered.map((sale) => {
+      if (sale.payment_method === 'efectivo') {
+        total += sale.totalPrice;
+        totalCashSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+      if (sale.payment_method === 'deposito') {
+        total += sale.totalPrice;
+        totalTranfsSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+      if (sale.payment_method === 'tarjeta') {
+        total += sale.totalPrice;
+        totalCardSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+    });
+
+    const cantidadRepetida: {
+      [name: string]: {
+        id: string;
+        name: string;
+        cant: number;
+        total: number;
+        profits?: number;
+      };
+    } = {};
+
+    filtered.forEach((sale) => {
+      sale.cart.forEach((producto: any) => {
+        if (producto.name in cantidadRepetida) {
+          (cantidadRepetida[producto.name].name = producto.name),
+            (cantidadRepetida[producto.name].id = producto.id),
+            (cantidadRepetida[producto.name].cant += producto.cant),
+            (cantidadRepetida[producto.name].total +=
+              producto.cant * producto.price);
+        } else {
+          cantidadRepetida[producto.name] = {
+            name: producto.name,
+            id: producto.id,
+            cant: producto.cant,
+            total: producto.cant * producto.price,
+            //FIXME: profits: producto.cant *
+          };
+        }
+      });
+    });
+
+    const obj = Object.entries(cantidadRepetida).map(
+      ([name, { id, cant, total, profits }]) => ({
+        name,
+        id,
+        cant,
+        total,
+        profits,
+      }),
+    );
+
+    //todo obtener los productos de un perido espesifico
+
+    return {
+      total,
+      totalProfit,
+
+      totalTranfsSales,
+      totalCashSales,
+      totalCardSales,
+
+      sales: obj,
+      salesByCategory: [],
+    };
   }
 }

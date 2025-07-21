@@ -19,7 +19,7 @@ export class SalesController {
     description: 'Orden Creada con exito.',
     type: SaleResponse,
   })
-  @Auth(ValidRoles.employee, ValidRoles.owner)
+  @Auth(ValidRoles.employee, ValidRoles.owner, ValidRoles.admin)
   create(@Body() createSaleDto: CreateSaleDto, @GetUser() employee: Employee) {
     return this.salesService.create(createSaleDto, employee);
   }

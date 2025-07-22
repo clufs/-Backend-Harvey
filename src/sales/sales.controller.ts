@@ -13,7 +13,7 @@ import { User } from '../auth/entities/user.entity';
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
-  @Post()
+  @Post('createsalefromweb')
   @Auth(ValidRoles.employee, ValidRoles.owner, ValidRoles.admin)
   createSaleFromWeb(@Body() createSaleDto:CreateSaleDto, @GetUser() user: User){
     return this.salesService.createFromWeb(createSaleDto, user);

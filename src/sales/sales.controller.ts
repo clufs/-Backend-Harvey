@@ -14,6 +14,12 @@ export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
   @Post()
+  @Auth(ValidRoles.employee, ValidRoles.owner, ValidRoles.admin)
+  createSaleFromWeb(@Body() createSaleDto:CreateSaleDto, @GetUser() user: User){
+    return this.salesService.createFromWeb(createSaleDto, user);
+  }
+
+  @Post()
   @ApiResponse({
     status: 201,
     description: 'Orden Creada con exito.',

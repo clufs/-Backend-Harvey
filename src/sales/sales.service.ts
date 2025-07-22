@@ -29,6 +29,78 @@ export class SalesService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
+   async createFromWeb(body: any, employee: User) {
+    const { cart, cardType, ...rest } = body;
+    const finalCart = cart; // ya es array de objetos
+    const { totalPrice, totalProfit } = await this._calculate(
+      finalCart,
+      cardType,
+    );
+
+    const date = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('D/M/YYYY');
+
+    const period = moment()
+      .tz('America/Argentina/Buenos_Aires')
+      .format('M/YYYY');
+
+    try {
+      const order = this.salesRepository.create({
+        cart: cart,
+        totalPrice,
+        totalProfit,
+        payment_method: rest.payment_method,
+        date,
+        period,
+        seller: employee,
+      });
+
+      await Promise.all([
+        this._updateProductStock(cart),
+        this.salesRepository.save(order),
+      ]);
+
+      // const {
+      //   todayTotalIncome,
+      //   todayTotalProfits,
+      //   todayTotalTarj,
+      //   todayTotalEfec,
+      //   todayTotalTranf,
+      // } = await this.getSalesForDay(employee.owner);
+
+      // const formatter = new Intl.NumberFormat('es-AR', {
+      //   style: 'currency',
+      //   currency: 'ARS',
+      // });
+
+      //       const toSendWhatsapp = `
+      //               *Nueva venta!* 📦
+      // *Metodo de pago*: ${order.payment_method}
+      // *Total*: *${formatter.format(order.totalPrice)}*
+      // *Ganancia*: *${formatter.format(order.totalProfit)}*
+
+      // *${date}*
+      // *Total*: *${formatter.format(todayTotalIncome)}*\n
+      // *Ganancia*: *${formatter.format(todayTotalProfits)}*\n
+
+      // *Tarjeta*: *${formatter.format(todayTotalTarj)}*\n
+      // *Efectivo*: *${formatter.format(todayTotalEfec)}*\n
+      // *Transferencia*: *${formatter.format(todayTotalTranf)}*\n
+      //       `;
+
+      // await this._seedMessage(employee.owner.phone, toSendWhatsapp);
+
+      delete order.totalProfit, delete order.cart;
+      delete order.seller;
+
+      return order;
+    } catch (error) {
+      console.log(error);
+      this.handleDbErrors(error);
+    }
+  }
+
   async create(body: any, employee: Employee) {
     const { cart, cardType, ...rest } = body;
     const finalCart = cart.map((item) => JSON.parse(item));

@@ -10,6 +10,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Product } from '../../products/entities/product.entity';
 import { ValidRoles } from '../interface';
 import { Employee } from '../../employee/entities/employee.entity';
+import { Sale } from 'src/sales/entities/sale.entity';
 
 @Entity('users')
 export class User {

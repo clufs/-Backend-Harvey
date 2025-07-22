@@ -29,8 +29,11 @@ export class SalesService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-   async createFromWeb(body: any, employee: User) {
+  async createFromWeb(body: any, employee: User) {
     const { cart, cardType, ...rest } = body;
+
+    console.log(body);
+
     const finalCart = cart; // ya es array de objetos
     const { totalPrice, totalProfit } = await this._calculate(
       finalCart,
@@ -57,39 +60,9 @@ export class SalesService {
       });
 
       await Promise.all([
-        this._updateProductStock(cart),
+        this._updateProductStockWeb(cart),
         this.salesRepository.save(order),
       ]);
-
-      // const {
-      //   todayTotalIncome,
-      //   todayTotalProfits,
-      //   todayTotalTarj,
-      //   todayTotalEfec,
-      //   todayTotalTranf,
-      // } = await this.getSalesForDay(employee.owner);
-
-      // const formatter = new Intl.NumberFormat('es-AR', {
-      //   style: 'currency',
-      //   currency: 'ARS',
-      // });
-
-      //       const toSendWhatsapp = `
-      //               *Nueva venta!* 📦
-      // *Metodo de pago*: ${order.payment_method}
-      // *Total*: *${formatter.format(order.totalPrice)}*
-      // *Ganancia*: *${formatter.format(order.totalProfit)}*
-
-      // *${date}*
-      // *Total*: *${formatter.format(todayTotalIncome)}*\n
-      // *Ganancia*: *${formatter.format(todayTotalProfits)}*\n
-
-      // *Tarjeta*: *${formatter.format(todayTotalTarj)}*\n
-      // *Efectivo*: *${formatter.format(todayTotalEfec)}*\n
-      // *Transferencia*: *${formatter.format(todayTotalTranf)}*\n
-      //       `;
-
-      // await this._seedMessage(employee.owner.phone, toSendWhatsapp);
 
       delete order.totalProfit, delete order.cart;
       delete order.seller;
@@ -181,6 +154,27 @@ export class SalesService {
     console.log(productsInCart);
 
     // Actualizar el stock de cada producto en el carrito
+    for (const productInCart of productsInCart) {
+      // Obtener el producto
+
+      const product = await this.productRepository.findOne({
+        where: { id: productInCart.id },
+      });
+
+      // Actualizar el stock del producto
+      product.stock -= productInCart.cant;
+
+      console.log(product);
+
+      await this.productRepository.save(product);
+    }
+  }
+
+  private async _updateProductStockWeb(cart) {
+    const productsInCart: ProductsInCart[] = cart;
+
+    console.log(productsInCart);
+
     for (const productInCart of productsInCart) {
       // Obtener el producto
 

@@ -104,7 +104,7 @@ export class EmployeeService {
   }
 
   async login({ password, phone }: LoginEmployeeDto) {
-    const employe = await this.employeeRespository.findOne({
+    const employe: Employee = await this.employeeRespository.findOne({
       where: { phone, password },
       select: {
         id: true,
@@ -119,6 +119,7 @@ export class EmployeeService {
 
     return {
       fullname: employe.name,
+      role: employe.roles,
       token: await this.authService.getJWToken({ id: employe.id }),
     };
 

@@ -15,7 +15,10 @@ export class SalesController {
 
   @Post('createsalefromweb')
   @Auth(ValidRoles.employee, ValidRoles.owner, ValidRoles.admin)
-  createSaleFromWeb(@Body() createSaleDto:CreateSaleDto, @GetUser() user: User){
+  createSaleFromWeb(
+    @Body() createSaleDto: CreateSaleDto,
+    @GetUser() user: User,
+  ) {
     return this.salesService.createFromWeb(createSaleDto, user);
   }
 
@@ -81,5 +84,10 @@ export class SalesController {
   @Auth(ValidRoles.owner)
   getSalesOfOneSingleMonth(@Body() body, @GetUser() owner: User) {
     return this.salesService.getSalesOfMonth(body, owner);
+  }
+  @Post('get-sales-by-period')
+  @Auth(ValidRoles.owner)
+  getSalesByPeriod(@GetUser() owner: User, @Body() body) {
+    return this.salesService.getSalesByPeriod(body, owner);
   }
 }

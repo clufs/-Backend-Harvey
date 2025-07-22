@@ -865,4 +865,117 @@ export class SalesService {
       'Porfavor revisar los logs del servidor.',
     );
   }
+
+  async getSalesByPeriod(body: any, owner: User) {
+    let total = 0;
+    let totalTranfsSales = 0;
+    let totalCardSales = 0;
+    let totalCashSales = 0;
+    let totalProfit = 0;
+
+    const { startDate, endDate } = body;
+
+    console.log(body);
+
+    const sales = await this.salesRepository.find({
+      where: {
+        seller: {
+          owner: {
+            id: owner.id,
+          },
+        },
+      },
+    });
+
+    // const products = await this.productRepository.find({
+    //   where: {
+    //     user: {
+    //       id: owner.id,
+    //     },
+    //   },
+    // });
+
+    const filtered = sales.filter((sale) => {
+      sale.cart = sale.cart.map((item) => JSON.parse(item));
+      const [day, month, year] = sale.date.split('/');
+      const saleDate = new Date(`${year}-${month}-${day}`);
+      return saleDate >= new Date(startDate) && saleDate <= new Date(endDate);
+    });
+
+    //filtro para ver las ventas de tarjeta, transf y efectivo
+    filtered.map((sale) => {
+      if (sale.payment_method === 'efectivo') {
+        total += sale.totalPrice;
+        totalCashSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+      if (sale.payment_method === 'deposito') {
+        total += sale.totalPrice;
+        totalTranfsSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+      if (sale.payment_method === 'tarjeta') {
+        total += sale.totalPrice;
+        totalCardSales += sale.totalPrice;
+        totalProfit += sale.totalProfit;
+        return;
+      }
+    });
+
+    const cantidadRepetida: {
+      [name: string]: {
+        id: string;
+        name: string;
+        cant: number;
+        total: number;
+        profits?: number;
+      };
+    } = {};
+
+    filtered.forEach((sale) => {
+      sale.cart.forEach((producto: any) => {
+        if (producto.name in cantidadRepetida) {
+          (cantidadRepetida[producto.name].name = producto.name),
+            (cantidadRepetida[producto.name].id = producto.id),
+            (cantidadRepetida[producto.name].cant += producto.cant),
+            (cantidadRepetida[producto.name].total +=
+              producto.cant * producto.price);
+        } else {
+          cantidadRepetida[producto.name] = {
+            name: producto.name,
+            id: producto.id,
+            cant: producto.cant,
+            total: producto.cant * producto.price,
+            //FIXME: profits: producto.cant *
+          };
+        }
+      });
+    });
+
+    const obj = Object.entries(cantidadRepetida).map(
+      ([name, { id, cant, total, profits }]) => ({
+        name,
+        id,
+        cant,
+        total,
+        profits,
+      }),
+    );
+
+    //todo obtener los productos de un perido espesifico
+
+    return {
+      total,
+      totalProfit,
+
+      totalTranfsSales,
+      totalCashSales,
+      totalCardSales,
+
+      sales: obj,
+      salesByCategory: [],
+    };
+  }
 }

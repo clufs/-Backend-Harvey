@@ -32,6 +32,8 @@ export class SalesService {
   async createFromWeb(body: any, employee: User) {
     const { cart, cardType, ...rest } = body;
 
+    const products = await this.productRepository.find();
+
     console.log(body);
 
     const finalCart = cart; // ya es array de objetos
@@ -887,20 +889,17 @@ export class SalesService {
       },
     });
 
-    // const products = await this.productRepository.find({
-    //   where: {
-    //     user: {
-    //       id: owner.id,
-    //     },
-    //   },
-    // });
+    // console.log(sales);
 
     const filtered = sales.filter((sale) => {
-      sale.cart = sale.cart.map((item) => JSON.parse(item));
+      sale.cart = sale.cart.map((item) =>
+        typeof item === 'string' ? JSON.parse(item) : item,
+      );
       const [day, month, year] = sale.date.split('/');
       const saleDate = new Date(`${year}-${month}-${day}`);
       return saleDate >= new Date(startDate) && saleDate <= new Date(endDate);
     });
+    console.log(filtered);
 
     //filtro para ver las ventas de tarjeta, transf y efectivo
     filtered.map((sale) => {
@@ -924,6 +923,11 @@ export class SalesService {
       }
     });
 
+    const allProducts = await this.productRepository.find();
+    const productMap = Object.fromEntries(
+      allProducts.map((p) => [p.id, { name: p.title, price: p.priceToSell }]),
+    );
+
     const cantidadRepetida: {
       [name: string]: {
         id: string;
@@ -936,24 +940,33 @@ export class SalesService {
 
     filtered.forEach((sale) => {
       sale.cart.forEach((producto: any) => {
-        if (producto.name in cantidadRepetida) {
-          (cantidadRepetida[producto.name].name = producto.name),
-            (cantidadRepetida[producto.name].id = producto.id),
-            (cantidadRepetida[producto.name].cant += producto.cant),
-            (cantidadRepetida[producto.name].total +=
-              producto.cant * producto.price);
+        let name = producto.name;
+        let price = producto.price;
+
+        // Si no tiene name/price (ventas nuevas), buscar en el catálogo
+        if (!name || !price) {
+          const prodInfo = productMap[producto.id];
+          if (!prodInfo) {
+            console.warn('⚠ Producto no encontrado en catálogo:', producto.id);
+            return; // Saltar si no está
+          }
+          name = prodInfo.name;
+          price = prodInfo.price;
+        }
+
+        if (cantidadRepetida[name]) {
+          cantidadRepetida[name].cant += producto.cant;
+          cantidadRepetida[name].total += producto.cant * price;
         } else {
-          cantidadRepetida[producto.name] = {
-            name: producto.name,
+          cantidadRepetida[name] = {
+            name: name,
             id: producto.id,
             cant: producto.cant,
-            total: producto.cant * producto.price,
-            //FIXME: profits: producto.cant *
+            total: producto.cant * price,
           };
         }
       });
     });
-
     const obj = Object.entries(cantidadRepetida).map(
       ([name, { id, cant, total, profits }]) => ({
         name,
@@ -963,6 +976,7 @@ export class SalesService {
         profits,
       }),
     );
+    console.log(obj);
 
     //todo obtener los productos de un perido espesifico
 

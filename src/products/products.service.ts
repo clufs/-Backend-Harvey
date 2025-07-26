@@ -96,6 +96,10 @@ export class ProductsService {
       );
 
       if (productToUpdate.user.id == user.id) {
+        if (updateProductDto.category) {
+          productToUpdate.title = updateProductDto.title;
+        }
+
         if (updateProductDto.priceToBuy)
           productToUpdate.priceToBuy = updateProductDto.priceToBuy;
 

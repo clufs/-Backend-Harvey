@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsString,
   MinLength,
@@ -47,6 +48,7 @@ export class CreateProductDto {
   })
   @IsNumber()
   @IsPositive()
+  @Type(() => Number)
   priceToBuy: number;
 
   @ApiProperty({
@@ -56,6 +58,7 @@ export class CreateProductDto {
   })
   @IsNumber()
   @IsPositive()
+  @Type(() => Number)
   priceToSell: number;
 
   @ApiProperty({
@@ -65,5 +68,6 @@ export class CreateProductDto {
   @IsInt()
   @IsPositive()
   @IsOptional()
+  @Type(() => Number)
   stock?: number;
 }

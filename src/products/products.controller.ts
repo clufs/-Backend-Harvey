@@ -38,7 +38,7 @@ export class ProductsController {
 
   @Post('findOne')
   @Auth(ValidRoles.owner)
-  @HttpCode(HttpStatus.FOUND)
+  // @HttpCode(HttpStatus.FOUND)
   getProduct(@Body() body, @GetUser() user: User) {
     return this.productsService.findOne(body, user);
   }

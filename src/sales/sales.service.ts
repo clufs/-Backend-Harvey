@@ -925,7 +925,10 @@ export class SalesService {
 
     const allProducts = await this.productRepository.find();
     const productMap = Object.fromEntries(
-      allProducts.map((p) => [p.id, { name: p.title, price: p.priceToSell }]),
+      allProducts.map((p) => [
+        p.id,
+        { name: p.title, price: p.priceToSell, category: p.category },
+      ]),
     );
 
     const cantidadRepetida: {
@@ -943,6 +946,7 @@ export class SalesService {
       sale.cart.forEach((producto: any) => {
         let name = producto.name;
         let price = producto.price;
+        let category = producto.category;
 
         // Si no tiene name/price (ventas nuevas), buscar en el catálogo
         if (!name || !price) {
@@ -953,11 +957,13 @@ export class SalesService {
           }
           name = prodInfo.name;
           price = prodInfo.price;
+          category = producto.category;
         }
 
         if (cantidadRepetida[name]) {
           cantidadRepetida[name].cant += producto.cant;
           cantidadRepetida[name].total += producto.cant * price;
+          cantidadRepetida[name].category = producto.category;
         } else {
           cantidadRepetida[name] = {
             name: name,

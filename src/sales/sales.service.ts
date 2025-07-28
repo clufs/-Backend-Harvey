@@ -935,6 +935,7 @@ export class SalesService {
         cant: number;
         total: number;
         profits?: number;
+        category: string;
       };
     } = {};
 
@@ -961,6 +962,7 @@ export class SalesService {
           cantidadRepetida[name] = {
             name: name,
             id: producto.id,
+            category: producto.category,
             cant: producto.cant,
             total: producto.cant * price,
           };
@@ -968,11 +970,12 @@ export class SalesService {
       });
     });
     const obj = Object.entries(cantidadRepetida).map(
-      ([name, { id, cant, total, profits }]) => ({
+      ([name, { id, cant, total, profits, category }]) => ({
         name,
         id,
         cant,
         total,
+        category,
         profits,
       }),
     );

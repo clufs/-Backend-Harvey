@@ -899,7 +899,7 @@ export class SalesService {
       const saleDate = new Date(`${year}-${month}-${day}`);
       return saleDate >= new Date(startDate) && saleDate <= new Date(endDate);
     });
-    console.log(filtered);
+    // console.log(filtered);
 
     //filtro para ver las ventas de tarjeta, transf y efectivo
     filtered.map((sale) => {
@@ -931,6 +931,8 @@ export class SalesService {
       ]),
     );
 
+    // console.log(productMap);
+
     const cantidadRepetida: {
       [name: string]: {
         id: string;
@@ -943,10 +945,17 @@ export class SalesService {
     } = {};
 
     filtered.forEach((sale) => {
+      const saleRevenue = sale.cart.reduce((sum: number, item: any) => {
+        const price = item.price ?? productMap[item.id]?.price ?? 0;
+        return sum + price * item.cant;
+      }, 0);
+
+      const saleProfitAmount = sale.totalProfit;
+
       sale.cart.forEach((producto: any) => {
         let name = producto.name;
         let price = producto.price;
-        let category = producto.category;
+        const cat = producto.category || productMap[producto.id]?.category;
 
         // Si no tiene name/price (ventas nuevas), buscar en el catálogo
         if (!name || !price) {
@@ -957,20 +966,26 @@ export class SalesService {
           }
           name = prodInfo.name;
           price = prodInfo.price;
-          category = producto.category;
+          // category: cat,
         }
+
+        const itemRev = price * producto.cant;
+        // ganancia en $ proporcional
+        const itemProfit =
+          saleRevenue > 0 ? (saleProfitAmount * itemRev) / saleRevenue : 0;
 
         if (cantidadRepetida[name]) {
           cantidadRepetida[name].cant += producto.cant;
           cantidadRepetida[name].total += producto.cant * price;
-          cantidadRepetida[name].category = producto.category;
+          cantidadRepetida[name].profits += itemProfit;
         } else {
           cantidadRepetida[name] = {
-            name: name,
+            name,
             id: producto.id,
-            category: producto.category,
+            category: cat,
             cant: producto.cant,
-            total: producto.cant * price,
+            total: itemRev,
+            profits: itemProfit,
           };
         }
       });
@@ -985,9 +1000,30 @@ export class SalesService {
         profits,
       }),
     );
-    console.log(obj);
+    // console.log(obj);
 
-    //todo obtener los productos de un perido espesifico
+    const categoryMap: Record<
+      string,
+      { category: string; cant: number; total: number; profits: number }
+    > = {};
+
+    obj.forEach((item) => {
+      const cat = item.category;
+      if (!categoryMap[cat]) {
+        categoryMap[cat] = {
+          category: cat,
+          cant: item.cant,
+          total: item.total,
+          profits: item.profits,
+        };
+      } else {
+        categoryMap[cat].cant += item.cant;
+        categoryMap[cat].total += item.total;
+        categoryMap[cat].profits += item.profits;
+      }
+    });
+
+    const salesByCategory = Object.values(categoryMap);
 
     return {
       total,
@@ -997,8 +1033,8 @@ export class SalesService {
       totalCashSales,
       totalCardSales,
 
-      sales: obj,
-      salesByCategory: [],
+      sales: obj.sort((a, b) => b.profits - a.profits),
+      salesByCategory: salesByCategory.sort((a, b) => b.profits - a.profits),
     };
   }
 }
